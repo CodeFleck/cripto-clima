@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="breadcrumbs">
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html" th:href="@{/}">Home</a>
+            <span th:text="${breadcrumbs}"></span>
+        </div>
+    </div>
+</div>

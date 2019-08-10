@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+    <title>Spring Boot Example</title>
+    <th:block th:include="fragments/headerinc :: head"></th:block>
+</head>
+<body>
+
+<div class="container-fluid">
+    <th:block th:include="fragments/header :: header"></th:block>
+    <th:block th:include="fragments/newsbody :: newsbody"></th:block>
+    <th:block th:include="fragments/footer :: footer"></th:block>
+    <th:block th:include="fragments/bottomscripts :: bottomscripts"></th:block>
+</div>
+</body>
+</html>

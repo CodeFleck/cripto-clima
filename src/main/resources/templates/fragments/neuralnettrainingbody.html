@@ -1,0 +1,31 @@
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div lang="en" th:fragment="neuralnettrainingbody">
+
+    <main class="main-content">
+        <div th:replace="fragments/breadcrumbs :: breadcrumbs" />
+    </main>
+
+    <div class="fullwidth-block">
+        <div class="container">
+            <div class="row">
+                <div class="content col-md-12">
+                    <h3>Insira os parâmetros para treinamento das redes neurais:</h3>
+                    <div>
+                        <form class="form-inline" th:action="@{/neural-net/init}" method="post">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">Épocas:</label>
+                                <div class="col-md-1">
+                                    <input type="text" class="form-control" name="epochs"/>
+                                </div>
+                            </div>
+                                <button type="submit" class="button">Iniciar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
