@@ -126,12 +126,7 @@ public class NeuralNetTrainingService {
 
     @NotNull
     private String getCSVContent() {
-        File file = null;
-        try {
-            file = ResourceUtils.getFile("classpath:data/coinBaseDailyCloseDez2014-Jan2018.csv");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        File file = new File("data/coinBaseDailyCloseDez2014-Jan2018.csv");
         System.out.println("File Found : " + file.exists());
 
         return file.getPath();
