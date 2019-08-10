@@ -17,6 +17,7 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<dl4j.version>1.0.0-alpha</dl4j.version>
+		<sdk>/usr/share/openjfx</sdk>
 	</properties>
 
 	<dependencies>
@@ -104,8 +105,10 @@
 
 		<dependency>
 			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-controls</artifactId>
-			<version>12.0.2</version>
+			<artifactId>javafx.base</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${sdk}/lib/javafx.base.jar</systemPath>
 		</dependency>
 
 	</dependencies>
@@ -115,14 +118,6 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.openjfx</groupId>
-				<artifactId>javafx-maven-plugin</artifactId>
-				<version>0.0.3</version>
-				<configuration>
-					<mainClass>hellofx/org.openjfx.App</mainClass>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
