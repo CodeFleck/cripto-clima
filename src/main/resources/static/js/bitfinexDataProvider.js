@@ -29,6 +29,30 @@
         var VOLUME = data[1][5];
 
         document.getElementById("btc").innerHTML = CLOSE.toFixed(2);
-    }
 
+        var candle = {};
+        candle.timestamp = DATE;
+        candle.open = OPEN;
+        candle.close = CLOSE;
+        candle.high = HIGH;
+        candle.low = LOW;
+        candle.volume = VOLUME;
+
+        var myJsonCandle = JSON.stringify(candle);
+
+        xhr = new XMLHttpRequest();
+        var url = "/candles";
+        xhr.open("POST", url, true);
+        xhr.setRequestHeader("Content-type", "application/json");
+        xhr.setRequestHeader( 'Authorization', 'Basic ' + btoa(  'admin:admin' ) );
+        xhr.withCredentials = true;
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                 var json = JSON.parse(xhr.responseText);
+                 console.log(json.toString())
+            }
+        }
+        xhr.send(myJsonCandle);
+
+    }
 })();

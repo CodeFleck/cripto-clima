@@ -13,19 +13,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Controller
-@RequestMapping("/neural-net")
-public class NeuralNetTrainingController {
+@RequestMapping("/config")
+public class ConfigController {
 
-    @Autowired
-    NeuralNetTrainingService trainingService;
+
+    private NeuralNetTrainingService trainingService;
 
     @GetMapping
     String neuralNet(Model model){
-        model.addAttribute("breadcrumbs", "redes neurais");
-        return "neuralnettraining";
+        model.addAttribute("breadcrumbs", "config");
+        return "config";
     }
 
-    @PostMapping("/init")
+    @PostMapping("/init-training")
     String initTraining(@ModelAttribute("epochs") int epochs){
 
         System.out.println("Starting training for neural nets. This may take a while...");
@@ -35,6 +35,14 @@ public class NeuralNetTrainingController {
             trainingService.trainNeuralNet("BTC", epochs, "all");
         });
 
-        return "redirect:/neural-net";
+        return "redirect:/config";
     }
+
+
+    //setters
+    @Autowired
+    public void setTrainingService(NeuralNetTrainingService trainingService){
+        this.trainingService = trainingService;
+    }
+
 }

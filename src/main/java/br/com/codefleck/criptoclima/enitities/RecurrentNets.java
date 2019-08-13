@@ -81,7 +81,7 @@ public class RecurrentNets {
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
         net.init();
-        net.setListeners(new ScoreIterationListener(100));
+        net.setListeners(new ScoreIterationListener(1));
         return net;
     }
 }
