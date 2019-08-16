@@ -1,11 +1,13 @@
 package br.com.codefleck.criptoclima.services;
 
+import br.com.codefleck.criptoclima.Utils.TimeSeriesUtil;
 import br.com.codefleck.criptoclima.enitities.Candle;
 import br.com.codefleck.criptoclima.repositories.CandleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +18,10 @@ import java.util.Optional;
 public class CandleServiceImpl implements CandleService {
 
     private CandleRepository candleRepository;
+    private TimeSeriesUtil timeSeriesUtil;
+
+    @Autowired
+    public void setTimeSeriesUtil(TimeSeriesUtil timeSeriesUtil) { this.timeSeriesUtil = timeSeriesUtil; }
 
     @Autowired
     public void setCandleRepository(CandleRepository candleRepository) {
@@ -23,8 +29,12 @@ public class CandleServiceImpl implements CandleService {
     }
 
     @Override
-    public Iterable<Candle> listAllCandles() {
-        return candleRepository.findAll();
+    public List<Candle> listAllCandles() {
+        Iterable<Candle> iterable = candleRepository.findAll();
+        List<Candle> candleList = new ArrayList<>();
+        iterable.forEach(candleList::add);
+        List<Candle> oneMinuteAggregatedList = timeSeriesUtil.aggregateTimeSeriesToOneMinute(candleList);
+        return oneMinuteAggregatedList;
     }
 
     @Override
@@ -52,7 +62,7 @@ public class CandleServiceImpl implements CandleService {
 
         Instant instant = Instant.now();
         long timestampMillisMinusOneHour = (instant.toEpochMilli() - 3600000);
-
-        return candleRepository.findByTimestamp(timestampMillisMinusOneHour);
+        List<Candle> oneMinuteAggregatedList = timeSeriesUtil.aggregateTimeSeriesToOneMinute(candleRepository.findByTimestamp(timestampMillisMinusOneHour));
+        return oneMinuteAggregatedList;
     }
 }

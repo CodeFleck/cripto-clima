@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface CandleService {
 
-    Iterable<Candle> listAllCandles();
+    List<Candle> listAllCandles();
 
     Optional<Candle> getCandleById(Integer id);
 
@@ -17,5 +17,5 @@ public interface CandleService {
 
     void deleteCandle(Candle candle);
 
-    public List<Candle> findLastHourCandles();
+    List<Candle> findLastHourCandles();
 }
