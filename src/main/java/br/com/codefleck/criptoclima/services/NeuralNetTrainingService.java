@@ -1,9 +1,11 @@
 package br.com.codefleck.criptoclima.services;
 
-import br.com.codefleck.criptoclima.Utils.PlotUtil;
 import br.com.codefleck.criptoclima.enitities.PriceCategory;
 import br.com.codefleck.criptoclima.enitities.RecurrentNets;
 import br.com.codefleck.criptoclima.enitities.StockDataSetIterator;
+import br.com.codefleck.criptoclima.enitities.TimePeriod;
+import br.com.codefleck.criptoclima.enitities.results.Result;
+import br.com.codefleck.criptoclima.enitities.results.ResultSet;
 import javafx.util.Pair;
 import org.deeplearning4j.eval.RegressionEvaluation;
 import org.deeplearning4j.nn.api.Layer;
@@ -16,11 +18,11 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -29,6 +31,10 @@ public class NeuralNetTrainingService {
 
     @Autowired
     ResourceLoader resourceLoader;
+    @Autowired
+    ResultSetService resultSetService;
+    @Autowired
+    ResultService resultService;
 
     private static int exampleLength = 30; // time series length
     private static StockDataSetIterator iterator;
@@ -48,8 +54,6 @@ public class NeuralNetTrainingService {
 
         System.out.println("Building LSTM networks...");
         MultiLayerNetwork net = RecurrentNets.createAndBuildLstmNetworks(iterator.inputColumns(), iterator.totalOutcomes());
-        net.init();
-        net.setListeners(new ScoreIterationListener(1));
 
         System.out.println("Training LSTM network...");
         for (int i = 0; i < epochs; i++) {
@@ -133,7 +137,7 @@ public class NeuralNetTrainingService {
     }
 
     /** Predict one feature of a stock one-day ahead */
-    private static void predictPriceOneAhead (MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, double max, double min, PriceCategory category) {
+    public void predictPriceOneAhead (MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, double max, double min, PriceCategory category) {
         double[] predicts = new double[testData.size()];
         double[] actuals = new double[testData.size()];
         
@@ -152,11 +156,12 @@ public class NeuralNetTrainingService {
         	System.out.println(predicts[i] + "," + actuals[i]);
         
         System.out.println("Plottig...");
-        PlotUtil.plot(predicts, actuals, String.valueOf(category));
+//        PlotUtil.plot(predicts, actuals, String.valueOf(category));
     }
 
     /** Predict all the features (open, close, low, high prices and volume) of a stock one-day ahead */
-    private static void predictAllCategories (MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, INDArray max, INDArray min) {
+    public ResultSet predictAllCategories (MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, INDArray max, INDArray min) {
+
         INDArray[] predicts = new INDArray[testData.size()];
         INDArray[] actuals = new INDArray[testData.size()];
         for (int i = 0; i < testData.size(); i++) {
@@ -166,30 +171,63 @@ public class NeuralNetTrainingService {
         
         System.out.println("Printing predicted and actual values...");
         System.out.println("Predict, Actual");
-        for (int i = 0; i < predicts.length; i++) 
+        for (int i = 0; i < predicts.length; i++){
         	System.out.println(predicts[i] + "\t" + actuals[i]);
-        System.out.println("Plottig...");
-        
-        RegressionEvaluation eval = net.evaluateRegression(iterator);   
-        System.out.println(eval.stats());
-        
+        }
+
+        if (iterator != null) {
+            RegressionEvaluation eval = net.evaluateRegression(iterator);
+            System.out.println(eval.stats());
+        }
+
+        //Preparing Results and ResultSet
+        ResultSet resultSet = resultSetService.saveResultSet(new ResultSet()); //TODO check to see if it comes with created id
+        Instant instant = Instant.now();
+        resultSet.setTimestamp(instant.toEpochMilli());
+        resultSet.setPeriod(TimePeriod.ONE_MINUTE);
+
+        List<Result> resultList = new ArrayList<>();
         for (int n = 0; n < 5; n++) {
+
+            PriceCategory pricaCategoryForResult;
+            switch (n) {
+                case 0: pricaCategoryForResult = PriceCategory.OPEN; break;
+                case 1: pricaCategoryForResult = PriceCategory.CLOSE; break;
+                case 2: pricaCategoryForResult = PriceCategory.LOW; break;
+                case 3: pricaCategoryForResult = PriceCategory.HIGH; break;
+                case 4: pricaCategoryForResult = PriceCategory.VOLUME; break;
+                default: throw new NoSuchElementException();
+            }
+
             double[] pred = new double[predicts.length];
             double[] actu = new double[actuals.length];
             for (int i = 0; i < predicts.length; i++) {
                 pred[i] = predicts[i].getDouble(n);
                 actu[i] = actuals[i].getDouble(n);
+                Result result = new Result(
+                        pricaCategoryForResult,
+                        Double.valueOf(predicts[i].getDouble(n)),
+                        Double.valueOf(actuals[i].getDouble(n)),
+                        TimePeriod.ONE_MINUTE,
+                        resultSet.getId()
+                );
+                resultList.add(resultService.saveResult(result));
             }
-            String name;
-            switch (n) {
-                case 0: name = "Stock OPEN Price"; break;
-                case 1: name = "Stock CLOSE Price"; break;
-                case 2: name = "Stock LOW Price"; break;
-                case 3: name = "Stock HIGH Price"; break;
-                case 4: name = "Stock VOLUME Amount"; break;
-                default: throw new NoSuchElementException();
-            }
-            PlotUtil.plot(pred, actu, name);
+
+//            String name;      //not plotting at the moment.
+//            switch (n) {
+//                case 0: name = "Stock OPEN Price"; break;
+//                case 1: name = "Stock CLOSE Price"; break;
+//                case 2: name = "Stock LOW Price"; break;
+//                case 3: name = "Stock HIGH Price"; break;
+//                case 4: name = "Stock VOLUME Amount"; break;
+//                default: throw new NoSuchElementException();
+//            }
+
+//            PlotUtil.plot(pred, actu, name);
         }
+
+        resultSet.setResultList(resultList);
+        return resultSet;
     }
 }

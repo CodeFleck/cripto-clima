@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <div lang="en" th:fragment="homebody">
+    <meta http-equiv="refresh" content="60; URL=http://localhost:5000/"> <!-- dont forget to update server ip for homepage auto reload -->
     <div class="site-content">
 
         <div class="hero" data-bg-image="images/banner.png">
@@ -43,7 +44,10 @@
                             <div class="forecast-icon">
                                 <img src="images/icons/icon-3.svg" alt="" width=48>
                             </div>
-                            <div class="degree">23<sup>o</sup>C</div>
+
+                            <div class="degree">
+                                <p th:text="${result}">result</p>
+                            </div>
                             <small>18<sup>o</sup></small>
                         </div>
                     </div>
