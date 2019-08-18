@@ -20,8 +20,10 @@ public class IndexController {
     String index(Model model){
 
         ResultSet latestResults = resultSetService.findFirstByOrderByIdDesc();
-        double result = Math.round(latestResults.getResultList().get(0).getPrediction());
-        model.addAttribute("result", result);
+        double high = Math.round(latestResults.getResultList().get(3).getPrediction());
+        double low = Math.round(latestResults.getResultList().get(2).getPrediction());
+        model.addAttribute("high", high);
+        model.addAttribute("low", low);
         return "index";
     }
 

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <div lang="en" th:fragment="homebody">
-    <meta http-equiv="refresh" content="60; URL=http://localhost:5000/"> <!-- dont forget to update server ip for homepage auto reload -->
+    <meta http-equiv="Refresh" content="300">
     <div class="site-content">
 
         <div class="hero" data-bg-image="images/banner.png">
@@ -46,9 +46,9 @@
                             </div>
 
                             <div class="degree">
-                                <p th:text="${result}">result</p>
+                                <p th:text="${high}">high</p>
                             </div>
-                            <small>18<sup>o</sup></small>
+                            <small><p th:text="${low}">low2</p></small>
                         </div>
                     </div>
                     <div class="forecast">

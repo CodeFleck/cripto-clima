@@ -2,11 +2,13 @@ package br.com.codefleck.criptoclima.jobs;
 
 import br.com.codefleck.criptoclima.Utils.CsvFileWriterUtil;
 import br.com.codefleck.criptoclima.Utils.StockDataUtil;
+import br.com.codefleck.criptoclima.Utils.TimeSeriesUtil;
 import br.com.codefleck.criptoclima.enitities.*;
 import br.com.codefleck.criptoclima.enitities.results.ResultSet;
 import br.com.codefleck.criptoclima.services.CandleService;
 import br.com.codefleck.criptoclima.services.NeuralNetTrainingService;
 import br.com.codefleck.criptoclima.services.ResultSetService;
+import com.opencsv.CSVReader;
 import javafx.util.Pair;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.util.ModelSerializer;
@@ -14,10 +16,12 @@ import org.jetbrains.annotations.NotNull;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,27 +42,26 @@ public class ScheduledJobs {
     @Autowired
     ResultSetService resultSetService;
 
-//    @Scheduled(cron = "0 0 * * * *",zone = "America/Sao_Paulo") //the top of every hour of every day.
-//    @Async
-    @Scheduled(cron = "*/5 * * * * ?",zone = "America/Sao_Paulo") //the top of every hour of every day.
+    @Async
+    @Scheduled(cron = "0 0/5 * * * ?",zone = "America/Sao_Paulo") //job executes every 5 min.
     public void updateForecastForHomePageJob() {
         System.out.println("JOB -> executing updateForecasetForhomePageJob...");
 
         synchronized(this) {
-//        List<Candle> candleList = candleService.findLastHourCandles();
-//        Collections.reverse(candleList);
 
+            List<Candle> candleList = candleService.findLast75DaysCandles();
+            Collections.reverse(candleList);
 
-            List<Candle> candleList = candleService.listAllCandles(); //temp
-            Collections.reverse(candleList); //temp
-            List<Candle> candleListLimited = new ArrayList<>();
-            while (candleListLimited.size() < 1800){
-                for (Candle candle : candleList) {
-                    candleListLimited.add(candle);
+            //case not enough candles for neural net we'll fill it up with some historical data
+            if (candleList.size() < 1800){
+                List<Candle> extraCandles = getExtraCandles(1800-candleList.size());
+                for (int i=0; i<extraCandles.size(); i++){
+                    candleList.add(extraCandles.get(i));
                 }
             }
+            //case we have more than 1800 candles we'll downsize the list
             try {
-                csvFileWriterUtil.writeCsvFileForNeuralNets(candleListLimited.subList(0, 1800));
+                csvFileWriterUtil.writeCsvFileForNeuralNets(candleList.subList(0, 1800));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -92,6 +95,32 @@ public class ScheduledJobs {
 
             System.out.println("Finished updateForecastForHomePageJob");
         }
+    }
+
+    private List<Candle> getExtraCandles(int n) {
+
+        File filename = new File("data/BTCUSD_1h_01jan2015_14ago2019.csv");
+
+        List<StockData> stockDataList = new ArrayList<>();
+        try {
+            List<String[]> list = new CSVReader(new FileReader(filename)).readAll();
+
+            boolean isFileHeader = true;
+
+            for (String[] arr : list) {
+                if (isFileHeader) {
+                    isFileHeader = false;
+                    continue;
+                }
+                for (int i = 0; i < arr.length; i++) {
+                    stockDataList.add(new StockData(arr[0], "BTC", Double.valueOf(arr[2]), Double.valueOf(arr[3]), Double.valueOf(arr[4]), Double.valueOf(arr[5]), Double.valueOf(arr[6])));
+                }
+            }
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+        List<Candle> candleList = stockDataUtil.tranformStockDataInCandle(stockDataList.subList(0, n));
+        return candleList;
     }
 
     @NotNull

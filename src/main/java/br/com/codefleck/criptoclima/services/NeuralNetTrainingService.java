@@ -1,5 +1,6 @@
 package br.com.codefleck.criptoclima.services;
 
+import br.com.codefleck.criptoclima.Utils.PlotUtil;
 import br.com.codefleck.criptoclima.enitities.PriceCategory;
 import br.com.codefleck.criptoclima.enitities.RecurrentNets;
 import br.com.codefleck.criptoclima.enitities.StockDataSetIterator;
@@ -130,7 +131,7 @@ public class NeuralNetTrainingService {
 
     @NotNull
     private String getCSVContent() {
-        File file = new File("data/coinBaseDailyCloseDez2014-Jan2018.csv");
+        File file = new File("data/BTCUSD_1h_01jan2015_14ago2019.csv");
         System.out.println("File Found : " + file.exists());
 
         return file.getPath();
@@ -223,7 +224,7 @@ public class NeuralNetTrainingService {
 //                case 4: name = "Stock VOLUME Amount"; break;
 //                default: throw new NoSuchElementException();
 //            }
-
+//
 //            PlotUtil.plot(pred, actu, name);
         }
 
