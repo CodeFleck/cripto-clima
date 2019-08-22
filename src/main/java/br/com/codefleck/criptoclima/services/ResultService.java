@@ -2,6 +2,7 @@ package br.com.codefleck.criptoclima.services;
 
 import br.com.codefleck.criptoclima.enitities.results.Result;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ResultService {
@@ -16,4 +17,5 @@ public interface ResultService {
 
     void deleteResult(Result result);
 
+    List<Result> getResultListByResultSetId(Integer id);
 }

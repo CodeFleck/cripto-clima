@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,8 +34,7 @@ public class CandleServiceImpl implements CandleService {
         Iterable<Candle> iterable = candleRepository.findAll();
         List<Candle> candleList = new ArrayList<>();
         iterable.forEach(candleList::add);
-        List<Candle> oneMinuteAggregatedList = timeSeriesUtil.aggregateTimeSeriesToOneMinute(candleList);
-        return oneMinuteAggregatedList;
+        return candleList;
     }
 
     @Override
@@ -61,8 +61,21 @@ public class CandleServiceImpl implements CandleService {
     public List<Candle> findLastHourCandles() {
 
         Instant instant = Instant.now();
-        long timestampMillisMinusOneHour = (instant.toEpochMilli() - 3600000);
+        instant = instant.minus(1, ChronoUnit.HOURS);
+        long timestampMillisMinusOneHour = (instant.toEpochMilli());
         List<Candle> oneMinuteAggregatedList = timeSeriesUtil.aggregateTimeSeriesToOneMinute(candleRepository.findByTimestamp(timestampMillisMinusOneHour));
+
         return oneMinuteAggregatedList;
+    }
+
+    @Override
+    public List<Candle> findLast30DaysCandles() {
+
+        Instant instant = Instant.now();
+        instant = instant.minus(30, ChronoUnit.DAYS);
+        long timestampMillisMinus30Days = (instant.toEpochMilli());
+        List<Candle> oneDayAggregatedList = timeSeriesUtil.aggregateTimeSeriesToOneDay(candleRepository.findByTimestamp(timestampMillisMinus30Days));
+
+        return oneDayAggregatedList;
     }
 }

@@ -2,7 +2,7 @@ package br.com.codefleck.criptoclima.enitities;
 
 public class StockData {
 
-    private String date; // date
+    private String date;
     private String symbol; // stock name
 
     private double open; // open price

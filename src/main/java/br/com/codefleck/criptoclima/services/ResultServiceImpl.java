@@ -5,6 +5,7 @@ import br.com.codefleck.criptoclima.repositories.ResultRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -43,5 +44,10 @@ public class ResultServiceImpl implements ResultService {
     @Override
     public void deleteResult(Result result) {
         resultRepository.delete(result);
+    }
+
+    @Override
+    public List<Result> getResultListByResultSetId(Integer id) {
+        return resultRepository.findAllByResultSetID(id);
     }
 }

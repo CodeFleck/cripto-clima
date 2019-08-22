@@ -18,4 +18,6 @@ public interface CandleService {
     void deleteCandle(Candle candle);
 
     List<Candle> findLastHourCandles();
+
+    List<Candle> findLast30DaysCandles();
 }

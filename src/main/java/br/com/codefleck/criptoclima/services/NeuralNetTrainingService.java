@@ -36,16 +36,16 @@ public class NeuralNetTrainingService {
     @Autowired
     ResultService resultService;
 
-    private static int exampleLength = 30; // time series length
+    private static int exampleLength = 312;
     private static StockDataSetIterator iterator;
 
     public void trainNeuralNet(String symbol, int epochs, String selectedCategory) {
 
-        String content = getCSVContent();
-
-        int batchSize = 128; // mini-batch size
+        int batchSize = 32; // mini-batch size
         double splitRatio = 0.8; // 80% for training, 20% for testing
         PriceCategory category = getSelectedCategory(selectedCategory);
+        String content = getCSVContent();
+
 
         System.out.println("Creating dataSet iterator...");
         iterator = new StockDataSetIterator(content, symbol, batchSize, exampleLength, splitRatio, category);
@@ -91,7 +91,7 @@ public class NeuralNetTrainingService {
         }
 
         //print the score with every 1 iteration
-        net.setListeners(new ScoreIterationListener(1));
+        net.setListeners(new ScoreIterationListener(10));
 
 		//Print the  number of parameters in the network (and for each layer)
 		Layer[] layers = net.getLayers();
@@ -103,11 +103,16 @@ public class NeuralNetTrainingService {
 		}
 		System.out.println("Total number of network parameters: " + totalNumParams);
 
+        ResultSet resultSet = resultSetService.saveResultSet(new ResultSet());
+        Instant instant = Instant.now();
+        resultSet.setTimestamp(instant.toEpochMilli());
+        resultSet.setPeriod(TimePeriod.ONE_HOUR);
+
         System.out.println("Evaluating...");
         if (category.equals(PriceCategory.ALL)) {
             INDArray max = Nd4j.create(iterator.getMaxArray());
             INDArray min = Nd4j.create(iterator.getMinArray());
-            predictAllCategories(net, test, max, min);
+            predictAllCategories(net, test, max, min, resultSet);
         } else {
             double max = iterator.getMaxNum(category);
             double min = iterator.getMinNum(category);
@@ -130,7 +135,7 @@ public class NeuralNetTrainingService {
 
     @NotNull
     private String getCSVContent() {
-        File file = new File("data/coinBaseDailyCloseDez2014-Jan2018.csv");
+        File file = new File("data/Kraken_BTCUSD_d.csv");
         System.out.println("File Found : " + file.exists());
 
         return file.getPath();
@@ -156,11 +161,10 @@ public class NeuralNetTrainingService {
         	System.out.println(predicts[i] + "," + actuals[i]);
         
         System.out.println("Plottig...");
-//        PlotUtil.plot(predicts, actuals, String.valueOf(category));
     }
 
     /** Predict all the features (open, close, low, high prices and volume) of a stock one-day ahead */
-    public ResultSet predictAllCategories (MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, INDArray max, INDArray min) {
+    public ResultSet predictAllCategories (MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, INDArray max, INDArray min, ResultSet resultSet) {
 
         INDArray[] predicts = new INDArray[testData.size()];
         INDArray[] actuals = new INDArray[testData.size()];
@@ -179,12 +183,6 @@ public class NeuralNetTrainingService {
             RegressionEvaluation eval = net.evaluateRegression(iterator);
             System.out.println(eval.stats());
         }
-
-        //Preparing Results and ResultSet
-        ResultSet resultSet = resultSetService.saveResultSet(new ResultSet()); //TODO check to see if it comes with created id
-        Instant instant = Instant.now();
-        resultSet.setTimestamp(instant.toEpochMilli());
-        resultSet.setPeriod(TimePeriod.ONE_MINUTE);
 
         List<Result> resultList = new ArrayList<>();
         for (int n = 0; n < 5; n++) {
@@ -213,21 +211,16 @@ public class NeuralNetTrainingService {
                 );
                 resultList.add(resultService.saveResult(result));
             }
-
-//            String name;      //not plotting at the moment.
-//            switch (n) {
-//                case 0: name = "Stock OPEN Price"; break;
-//                case 1: name = "Stock CLOSE Price"; break;
-//                case 2: name = "Stock LOW Price"; break;
-//                case 3: name = "Stock HIGH Price"; break;
-//                case 4: name = "Stock VOLUME Amount"; break;
-//                default: throw new NoSuchElementException();
-//            }
-
-//            PlotUtil.plot(pred, actu, name);
         }
 
         resultSet.setResultList(resultList);
         return resultSet;
     }
 }
+
+//example length tests with candleList.size()=1800
+//360 = error
+//359 = error
+//358 = 1 (aparece zero no grafico, mas 1 resultado no log)
+//355 = 4 (aparece zero no grafico, mas 4 no log)
+//350 = 9 (aparece zero no grafico, mas 9 no log)

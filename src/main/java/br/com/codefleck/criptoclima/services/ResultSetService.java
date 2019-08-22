@@ -17,4 +17,5 @@ public interface ResultSetService {
     void deleteResultSet(ResultSet resultSet);
 
     ResultSet findFirstByOrderByIdDesc();
+
 }
