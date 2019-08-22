@@ -28,6 +28,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 "/fragments/**",
                 "/index",
                 "/",
+                "/news",
                 "/candles/**",
         };
 

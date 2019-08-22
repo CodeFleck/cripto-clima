@@ -69,13 +69,13 @@ public class CandleServiceImpl implements CandleService {
     }
 
     @Override
-    public List<Candle> findLast75DaysCandles() {
+    public List<Candle> findLast30DaysCandles() {
 
         Instant instant = Instant.now();
-        instant = instant.minus(75, ChronoUnit.DAYS);
-        long timestampMillisMinus75Days = (instant.toEpochMilli());
-        List<Candle> oneHourAggregatedList = timeSeriesUtil.aggregateTimeSeriesToOneHour(candleRepository.findByTimestamp(timestampMillisMinus75Days));
+        instant = instant.minus(30, ChronoUnit.DAYS);
+        long timestampMillisMinus30Days = (instant.toEpochMilli());
+        List<Candle> oneDayAggregatedList = timeSeriesUtil.aggregateTimeSeriesToOneDay(candleRepository.findByTimestamp(timestampMillisMinus30Days));
 
-        return oneHourAggregatedList;
+        return oneDayAggregatedList;
     }
 }

@@ -13,15 +13,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
-public class StockDataSetIterator implements DataSetIterator {
+public class ForecastJobsDataSetIterator implements DataSetIterator {
     /** category and its index */
     private final Map<PriceCategory, Integer> featureMapIndex = ImmutableMap.of(PriceCategory.OPEN, 0, PriceCategory.CLOSE, 1,
             PriceCategory.LOW, 2, PriceCategory.HIGH, 3, PriceCategory.VOLUME, 4);
 
     private final int VECTOR_SIZE = 5; // number of features for a stock data
     private int miniBatchSize; // mini-batch size
-    private int exampleLength; // default 22, say, 22 working days per month
-    private int predictLength = 24; // default 1, say, one day ahead prediction
+    private int exampleLength;
+    private int predictLength = 1;
 
     /** minimal values of each feature in stock dataset */
     private double[] minArray = new double[VECTOR_SIZE];
@@ -36,19 +36,17 @@ public class StockDataSetIterator implements DataSetIterator {
 
     /** stock dataset for training */
     private List<StockData> train;
-    
+
     /** adjusted stock dataset for testing */
     private List<Pair<INDArray, INDArray>> test;
 
-    public StockDataSetIterator (String filename, String symbol, int miniBatchSize, int exampleLength, double splitRatio, PriceCategory category) {
+    public ForecastJobsDataSetIterator(String filename, int miniBatchSize, int exampleLength, PriceCategory category) {
         List<StockData> stockDataList = readStockDataFromFile(filename);
-        List<StockData> reducedDataList = stockDataList.subList(0, 1800);
         this.miniBatchSize = miniBatchSize;
         this.exampleLength = exampleLength;
         this.category = category;
-        int split = (int) Math.round(reducedDataList.size() * splitRatio);
-        train = reducedDataList.subList(0, split);
-        test = generateTestDataSet(reducedDataList.subList(split, reducedDataList.size()));
+        train = stockDataList;
+        test = generateTestDataSet(stockDataList);
         initializeOffsets();
     }
 
@@ -154,7 +152,15 @@ public class StockDataSetIterator implements DataSetIterator {
     public boolean hasNext() { return exampleStartOffsets.size() > 0; }
 
     public DataSet next() { return next(miniBatchSize); }
-    
+
+    public int getExampleLength() {
+        return exampleLength;
+    }
+
+    public void setExampleLength(int exampleLength) {
+        this.exampleLength = exampleLength;
+    }
+
     private List<Pair<INDArray, INDArray>> generateTestDataSet (List<StockData> stockDataList) {
         System.out.println("generating test dataset...");
     	int window = exampleLength + predictLength;

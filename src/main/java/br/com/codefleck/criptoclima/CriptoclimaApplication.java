@@ -12,10 +12,5 @@ public class CriptoclimaApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(CriptoclimaApplication.class, args);
-
-		//use code below to generate JChart
-//		SpringApplicationBuilder builder = new SpringApplicationBuilder(CriptoclimaApplication.class);
-//		builder.headless(false);
-//		ConfigurableApplicationContext context = builder.run(args);
 	}
 }

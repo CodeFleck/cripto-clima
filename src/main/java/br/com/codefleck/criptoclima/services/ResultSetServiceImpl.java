@@ -1,10 +1,12 @@
 package br.com.codefleck.criptoclima.services;
 
+import br.com.codefleck.criptoclima.enitities.results.Result;
 import br.com.codefleck.criptoclima.enitities.results.ResultSet;
 import br.com.codefleck.criptoclima.repositories.ResultSetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
