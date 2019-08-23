@@ -27,18 +27,19 @@ public class IndexController {
     String index(Model model) {
 
         ResultSet latestResultSet = resultSetService.findFirstByOrderByIdDesc();
-        List<Result> resultListByResultSet = resultService.getResultListByResultSetId(latestResultSet.getId());
-        latestResultSet.setResultList(resultListByResultSet);
 
-        if (latestResultSet.getId() != null && latestResultSet.getResultList().size() > 0) {
-
-            for (Result result : resultListByResultSet) {
-                if (result.getPriceCategory() == PriceCategory.HIGH){
-                    double high = Math.round(latestResultSet.getResultList().get(3).getPrediction());
-                    model.addAttribute("high", high);
-                } else if (result.getPriceCategory() == PriceCategory.LOW){
-                    double low = Math.round(latestResultSet.getResultList().get(2).getPrediction());
-                    model.addAttribute("low", low);
+        if (latestResultSet.getId() != null) {
+            List<Result> resultListByResultSet = resultService.getResultListByResultSetId(latestResultSet.getId());
+            latestResultSet.setResultList(resultListByResultSet);
+            if (resultListByResultSet != null && resultListByResultSet.size() > 0) {
+                for (Result result : resultListByResultSet) {
+                    if (result.getPriceCategory() == PriceCategory.HIGH) {
+                        double high = Math.round(latestResultSet.getResultList().get(3).getPrediction());
+                        model.addAttribute("high", high);
+                    } else if (result.getPriceCategory() == PriceCategory.LOW) {
+                        double low = Math.round(latestResultSet.getResultList().get(2).getPrediction());
+                        model.addAttribute("low", low);
+                    }
                 }
             }
         } else {
