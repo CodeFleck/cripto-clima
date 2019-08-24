@@ -138,7 +138,7 @@ public class ScheduledJobs {
 
     @NotNull
     private String getCSVContent() {
-        File file = new File(System.getProperty("user.home") + "/csv/homePage_update_forecastData.csv");
+        File file = new File("data/homePage_update_forecastData.csv");
         if (!file.exists()){
             System.out.println("File Found : " + file.getName());
         }

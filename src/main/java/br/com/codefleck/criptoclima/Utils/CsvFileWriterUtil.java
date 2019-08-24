@@ -18,7 +18,7 @@ public class CsvFileWriterUtil {
 
     public void writeCsvFileForNeuralNets(List<Candle> candleList) throws IOException {
 
-        String csvFileForTrainingNeuralNets = System.getProperty("user.home") + "/csv/homePage_update_forecastData.csv";
+        String csvFileForTrainingNeuralNets = "data/homePage_update_forecastData.csv";
 
         FileWriter fileWriter = new FileWriter(csvFileForTrainingNeuralNets);
         try {
@@ -55,7 +55,7 @@ public class CsvFileWriterUtil {
 
     public void writeCsvFileWithStockDataList(List<StockData> stockDataList) throws IOException {
 
-        String csvFileForTrainingNeuralNets = System.getProperty("user.home") + "/csv/changeMe.csv";
+        String csvFileForTrainingNeuralNets = "data/changeMe.csv";
 
         FileWriter fileWriter = new FileWriter(csvFileForTrainingNeuralNets);
         try {
