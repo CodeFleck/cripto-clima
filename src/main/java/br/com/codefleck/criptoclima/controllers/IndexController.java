@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Homepage controller.
@@ -26,18 +27,21 @@ public class IndexController {
     @RequestMapping("/")
     String index(Model model) {
 
-        ResultSet latestResultSet = resultSetService.findFirstByOrderByIdDesc();
+        Optional<ResultSet> response = resultSetService.findFirstByOrderByIdDesc();
+        if (response.isPresent()){
+            ResultSet latestResultSet = response.get();
+            Optional<List<Result>> resultListByResultSetResponse = resultService.getResultListByResultSetId(latestResultSet.getId());
+            if (resultListByResultSetResponse.isPresent()){
 
-        if (latestResultSet.getId() != null) {
-            List<Result> resultListByResultSet = resultService.getResultListByResultSetId(latestResultSet.getId());
-            latestResultSet.setResultList(resultListByResultSet);
-            if (resultListByResultSet != null && resultListByResultSet.size() > 0) {
+                List<Result> resultListByResultSet = resultListByResultSetResponse.get();
+                latestResultSet.setResultList(resultListByResultSet);
+
                 for (Result result : resultListByResultSet) {
-                    if (result.getPriceCategory() == PriceCategory.HIGH) {
-                        double high = Math.round(latestResultSet.getResultList().get(3).getPrediction());
+                    if (result.getPriceCategory() == PriceCategory.HIGH){
+                        double high = Math.round(result.getPrediction());
                         model.addAttribute("high", high);
-                    } else if (result.getPriceCategory() == PriceCategory.LOW) {
-                        double low = Math.round(latestResultSet.getResultList().get(2).getPrediction());
+                    } else if (result.getPriceCategory() == PriceCategory.LOW){
+                        double low = Math.round(result.getPrediction());
                         model.addAttribute("low", low);
                     }
                 }

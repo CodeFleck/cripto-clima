@@ -48,7 +48,7 @@ public class ResultSetServiceImpl implements ResultSetService {
     }
 
     @Override
-    public ResultSet findFirstByOrderByIdDesc() {
+    public Optional<ResultSet> findFirstByOrderByIdDesc() {
         return resultSetRepository.findFirstByOrderByIdDesc();
     }
 }

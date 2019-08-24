@@ -17,5 +17,5 @@ public interface ResultService {
 
     void deleteResult(Result result);
 
-    List<Result> getResultListByResultSetId(Integer id);
+    Optional<List<Result>> getResultListByResultSetId(Integer id);
 }

@@ -47,7 +47,7 @@ public class ResultServiceImpl implements ResultService {
     }
 
     @Override
-    public List<Result> getResultListByResultSetId(Integer id) {
+    public Optional<List<Result>> getResultListByResultSetId(Integer id) {
         return resultRepository.findAllByResultSetID(id);
     }
 }
