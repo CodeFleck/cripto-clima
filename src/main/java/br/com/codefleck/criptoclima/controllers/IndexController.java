@@ -1,5 +1,6 @@
 package br.com.codefleck.criptoclima.controllers;
 
+import br.com.codefleck.criptoclima.Utils.TranslatorUtil;
 import br.com.codefleck.criptoclima.enitities.PriceCategory;
 import br.com.codefleck.criptoclima.enitities.results.Result;
 import br.com.codefleck.criptoclima.enitities.results.ResultSet;
@@ -27,6 +28,8 @@ public class IndexController {
     ResultSetService resultSetService;
     @Autowired
     ResultService resultService;
+    @Autowired
+    TranslatorUtil translator;
 
     @RequestMapping("/")
     String index(Model model) {
@@ -55,36 +58,18 @@ public class IndexController {
             model.addAttribute("low", "0");
         }
 
-        LocalDate localDate = LocalDate.now();
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM");
-        String dayAndMonth = localDate.format(formatter);
-
-        System.out.println("Day and month " + dayAndMonth);
-
         //update 7 days of the week
-        model.addAttribute("today", dayAndMonth);
-        model.addAttribute("weekDayToday", translate(String.valueOf(localDate.getDayOfWeek()).toLowerCase()));
-        model.addAttribute("weekDay1", translate(String.valueOf(localDate.plusDays(1).getDayOfWeek()).toLowerCase()));
-        model.addAttribute("weekDay2", translate(String.valueOf(localDate.plusDays(2).getDayOfWeek()).toLowerCase()));
-        model.addAttribute("weekDay3", translate(String.valueOf(localDate.plusDays(3).getDayOfWeek()).toLowerCase()));
-        model.addAttribute("weekDay4", translate(String.valueOf(localDate.plusDays(4).getDayOfWeek()).toLowerCase()));
-        model.addAttribute("weekDay5", translate(String.valueOf(localDate.plusDays(5).getDayOfWeek()).toLowerCase()));
-        model.addAttribute("weekDay6", translate(String.valueOf(localDate.plusDays(6).getDayOfWeek()).toLowerCase()));
+        LocalDate localDate = LocalDate.now();
+        model.addAttribute("dayAndMonth", translator.translateMonth(localDate));
+        model.addAttribute("weekDayToday", translator.translateDayOfWeek(String.valueOf(localDate.getDayOfWeek()).toLowerCase()));
+        model.addAttribute("weekDay1", translator.translateDayOfWeek(String.valueOf(localDate.plusDays(1).getDayOfWeek()).toLowerCase()));
+        model.addAttribute("weekDay2", translator.translateDayOfWeek(String.valueOf(localDate.plusDays(2).getDayOfWeek()).toLowerCase()));
+        model.addAttribute("weekDay3", translator.translateDayOfWeek(String.valueOf(localDate.plusDays(3).getDayOfWeek()).toLowerCase()));
+        model.addAttribute("weekDay4", translator.translateDayOfWeek(String.valueOf(localDate.plusDays(4).getDayOfWeek()).toLowerCase()));
+        model.addAttribute("weekDay5", translator.translateDayOfWeek(String.valueOf(localDate.plusDays(5).getDayOfWeek()).toLowerCase()));
+        model.addAttribute("weekDay6", translator.translateDayOfWeek(String.valueOf(localDate.plusDays(6).getDayOfWeek()).toLowerCase()));
 
         return "index";
     }
 
-    private String translate(String word){
-        switch (word) {
-            case "monday": return "Segunda";
-            case "tuesday": return "Terça";
-            case "wednesday": return "Quarta";
-            case "thursday": return "Quinta";
-            case "friday": return "Sexta";
-            case "saturday": return "Sábado";
-            case "sunday": return "Domingo";
-            default: throw new NoSuchElementException();
-        }
-    }
 }
