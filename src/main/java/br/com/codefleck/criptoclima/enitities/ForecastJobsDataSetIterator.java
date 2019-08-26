@@ -24,9 +24,9 @@ public class ForecastJobsDataSetIterator implements DataSetIterator {
     private int predictLength = 1;
 
     /** minimal values of each feature in stock dataset */
-    private double[] minArray = new double[VECTOR_SIZE];
+    private float[] minArray = new float[VECTOR_SIZE];
     /** maximal values of each feature in stock dataset */
-    private double[] maxArray = new double[VECTOR_SIZE];
+    private float[] maxArray = new float[VECTOR_SIZE];
 
     /** feature to be selected as a training target */
     private PriceCategory category;
@@ -59,9 +59,9 @@ public class ForecastJobsDataSetIterator implements DataSetIterator {
 
     public List<Pair<INDArray, INDArray>> getTestDataSet() { return test; }
 
-    public double[] getMaxArray() { return maxArray; }
+    public float[] getMaxArray() { return maxArray; }
 
-    public double[] getMinArray() { return minArray; }
+    public float[] getMinArray() { return minArray; }
 
     public double getMaxNum (PriceCategory category) { return maxArray[featureMapIndex.get(category)]; }
 
@@ -206,8 +206,8 @@ public class ForecastJobsDataSetIterator implements DataSetIterator {
         List<StockData> stockDataList = new ArrayList<>();
         try {
             for (int i = 0; i < maxArray.length; i++) { // initialize max and min arrays
-                maxArray[i] = Double.MIN_VALUE;
-                minArray[i] = Double.MAX_VALUE;
+                maxArray[i] = Float.MIN_VALUE;
+                minArray[i] = Float.MAX_VALUE;
             }
             List<String[]> list = new CSVReader(new FileReader(filename)).readAll(); // load all elements in a list
             boolean isFileHeader = true;
@@ -216,9 +216,9 @@ public class ForecastJobsDataSetIterator implements DataSetIterator {
                     isFileHeader = false;
                     continue;
                 }
-                double[] nums = new double[VECTOR_SIZE];
+                float[] nums = new float[VECTOR_SIZE];
                 for (int i = 0; i < arr.length - 2; i++) {
-                    nums[i] = Double.valueOf(arr[i + 2]);
+                    nums[i] = Float.valueOf(arr[i + 2]);
                     if (nums[i] > maxArray[i]) maxArray[i] = nums[i];
                     if (nums[i] < minArray[i]) minArray[i] = nums[i];
                 }

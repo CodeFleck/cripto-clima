@@ -75,8 +75,6 @@ public class RecurrentNets {
                 .backpropType(BackpropType.TruncatedBPTT)
                 .tBPTTForwardLength(truncatedBPTTLength)
                 .tBPTTBackwardLength(truncatedBPTTLength)
-                .pretrain(false)
-                .backprop(true)
                 .build();
 
         MultiLayerNetwork net = new MultiLayerNetwork(conf);

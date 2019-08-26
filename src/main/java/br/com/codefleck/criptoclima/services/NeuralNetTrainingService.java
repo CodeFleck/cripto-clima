@@ -67,7 +67,7 @@ public class NeuralNetTrainingService {
         Layer[] layers_before_saving = net.getLayers();
         int totalNumParams_before_saving = 0;
         for( int i=0; i<layers_before_saving.length; i++ ){
-            int nParams = layers_before_saving[i].numParams();
+            int nParams = Math.toIntExact(layers_before_saving[i].numParams());
             System.out.println("Number of parameters in layer " + i + ": " + nParams);
             totalNumParams_before_saving += nParams;
         }
@@ -97,7 +97,7 @@ public class NeuralNetTrainingService {
 		Layer[] layers = net.getLayers();
 		int totalNumParams = 0;
 		for( int i=0; i<layers.length; i++ ){
-			int nParams = layers[i].numParams();
+			int nParams = Math.toIntExact(layers[i].numParams());
 			System.out.println("Number of parameters in layer " + i + ": " + nParams);
 			totalNumParams += nParams;
 		}
