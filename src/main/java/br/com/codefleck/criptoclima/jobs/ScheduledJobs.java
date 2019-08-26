@@ -43,7 +43,7 @@ public class ScheduledJobs {
     CsvFileWriterUtil csvFileWriterUtil;
 
     @Async
-    @Scheduled(cron = "0 0/1 * * * ?",zone = "America/Sao_Paulo") //job executes every 30 min.
+    @Scheduled(cron = "0 0/30 * * * ?",zone = "America/Sao_Paulo") //job executes every 30 min.
     public void updateDailyForecastForHomePageJob() {
         System.out.println("JOB -> executing updateDailyForecasetForhomePageJob...");
 
