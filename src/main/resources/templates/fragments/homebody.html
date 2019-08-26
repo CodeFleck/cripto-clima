@@ -6,21 +6,14 @@
     <div class="site-content">
 
         <div class="hero" data-bg-image="images/banner.png">
-            <div class="container">
-                <form action="#" class="find-location">
-                    <input type="text" placeholder="Find your location...">
-                    <input type="submit" value="Find">
-                </form>
-
-            </div>
         </div>
         <div class="forecast-table">
             <div class="container">
                 <div class="forecast-container">
                     <div class="today forecast">
                         <div class="forecast-header">
-                            <div class="day">Monday</div>
-                            <div class="date">6 Oct</div>
+                            <div class="day"><p th:text="${weekDayToday}">weekDayToday</p></div>
+                            <div class="date"><p th:text="${dayAndMonth}">dayAndMonth</p></div>
                         </div> <!-- .forecast-header -->
                         <div class="forecast-content">
                             <div class="location">Bitcoin</div>
@@ -37,7 +30,7 @@
                     </div>
                     <div class="forecast">
                         <div class="forecast-header">
-                            <div class="day">Tuesday</div>
+                            <div class="day"><p th:text="${weekDay1}">weekDay1</p></div>
                         </div> <!-- .forecast-header -->
                         <div class="forecast-content">
                             <div class="forecast-icon">
@@ -52,7 +45,7 @@
                     </div>
                     <div class="forecast">
                         <div class="forecast-header">
-                            <div class="day">Wednesday</div>
+                            <div class="day"><p th:text="${weekDay2}">weekDay2</p></div>
                         </div> <!-- .forecast-header -->
                         <div class="forecast-content">
                             <div class="forecast-icon">
@@ -64,7 +57,7 @@
                     </div>
                     <div class="forecast">
                         <div class="forecast-header">
-                            <div class="day">Thursday</div>
+                            <div class="day"><p th:text="${weekDay3}">weekDay3</p></div>
                         </div> <!-- .forecast-header -->
                         <div class="forecast-content">
                             <div class="forecast-icon">
@@ -76,7 +69,7 @@
                     </div>
                     <div class="forecast">
                         <div class="forecast-header">
-                            <div class="day">Friday</div>
+                            <div class="day"><p th:text="${weekDay4}">weekDay4</p></div>
                         </div> <!-- .forecast-header -->
                         <div class="forecast-content">
                             <div class="forecast-icon">
@@ -88,7 +81,7 @@
                     </div>
                     <div class="forecast">
                         <div class="forecast-header">
-                            <div class="day">Saturday</div>
+                            <div class="day"><p th:text="${weekDay5}">weekDay5</p></div>
                         </div> <!-- .forecast-header -->
                         <div class="forecast-content">
                             <div class="forecast-icon">
@@ -100,7 +93,7 @@
                     </div>
                     <div class="forecast">
                         <div class="forecast-header">
-                            <div class="day">Sunday</div>
+                            <div class="day"><p th:text="${weekDay6}">weekDay6</p></div>
                         </div> <!-- .forecast-header -->
                         <div class="forecast-content">
                             <div class="forecast-icon">
