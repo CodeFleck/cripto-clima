@@ -16,19 +16,19 @@ public class Candle {
     private long timestamp;
     private double open;
     private double close;
-    private double high;
     private double low;
+    private double high;
     private double volume;
 
     public Candle() {
     }
 
-    public Candle(long timestamp, double open, double close, double high, double low, double volume) {
+    public Candle(long timestamp, double open, double close, double low, double high, double volume) {
         this.timestamp = timestamp;
         this.open = open;
         this.close = close;
-        this.high = high;
         this.low = low;
+        this.high = high;
         this.volume = volume;
     }
 
@@ -64,20 +64,20 @@ public class Candle {
         this.close = close;
     }
 
-    public double getHigh() {
-        return high;
-    }
-
-    public void setHigh(double high) {
-        this.high = high;
-    }
-
     public double getLow() {
         return low;
     }
 
     public void setLow(double low) {
         this.low = low;
+    }
+
+    public double getHigh() {
+        return high;
+    }
+
+    public void setHigh(double high) {
+        this.high = high;
     }
 
     public double getVolume() {
@@ -95,8 +95,8 @@ public class Candle {
                 ", timestamp=" + timestamp +
                 ", open=" + open +
                 ", close=" + close +
-                ", high=" + high +
                 ", low=" + low +
+                ", high=" + high +
                 ", volume=" + volume +
                 '}';
     }

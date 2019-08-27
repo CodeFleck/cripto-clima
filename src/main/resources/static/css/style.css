@@ -1233,7 +1233,7 @@ form textarea {
     width: 100%;
     overflow: hidden;
     border-radius: 10px;
-    margin-top: -150px;
+    margin-top: 50px;
     margin-bottom: 50px; }
 .forecast-container .forecast {
     display: table-cell;

@@ -24,8 +24,8 @@ public class StockDataUtil {
                     "BTC",
                     candle.getOpen(),
                     candle.getClose(),
-                    candle.getHigh(),
                     candle.getLow(),
+                    candle.getHigh(),
                     candle.getVolume()
             );
             stockDataList.add(stockData);
@@ -45,8 +45,8 @@ public class StockDataUtil {
                     instant.toEpochMilli(),
                     stock.getOpen(),
                     stock.getClose(),
-                    stock.getHigh(),
                     stock.getLow(),
+                    stock.getHigh(),
                     stock.getVolume()
             );
               candleList.add(candle);

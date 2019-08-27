@@ -34,8 +34,8 @@
         candle.timestamp = DATE;
         candle.open = OPEN;
         candle.close = CLOSE;
-        candle.high = HIGH;
         candle.low = LOW;
+        candle.high = HIGH;
         candle.volume = VOLUME;
 
         var myJsonCandle = JSON.stringify(candle);
