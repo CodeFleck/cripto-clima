@@ -2,10 +2,15 @@ package br.com.codefleck.criptoclima.Utils;
 
 import br.com.codefleck.criptoclima.enitities.Candle;
 import br.com.codefleck.criptoclima.enitities.StockData;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -20,9 +25,10 @@ public class TimeSeriesUtil {
             double currentHigh = currentCandle.getHigh();
             double currentVolume = currentCandle.getVolume();
 
-            long nextMinute = currentCandle.getTimestamp() + 60000;
+            LocalDateTime tempLocalDateTime = generateLocalDateTime(currentCandle);
+            LocalDateTime nextMinute = tempLocalDateTime.plusMinutes(1);
 
-            while (candleList.size() > i && (candleList.get(i).getTimestamp() < nextMinute)){
+            while (candleList.size() > i && generateLocalDateTime(candleList.get(i)).isBefore(nextMinute)){
                 currentCandle = candleList.get(i); // nextBar
                 currentHigh = Math.max(currentHigh, currentCandle.getHigh());
                 currentLow = Math.min(currentLow, currentCandle.getLow());
@@ -45,9 +51,10 @@ public class TimeSeriesUtil {
             double currentHigh = currentCandle.getHigh();
             double currentVolume = currentCandle.getVolume();
 
-            long nextHour = currentCandle.getTimestamp() + 3600000;
+            LocalDateTime tempLocalDateTime = generateLocalDateTime(currentCandle);
+            LocalDateTime nextHour = tempLocalDateTime.plusHours(1);
 
-            while (candleList.size() > i && (candleList.get(i).getTimestamp() < nextHour)){
+            while (candleList.size() > i && generateLocalDateTime(candleList.get(i)).isBefore(nextHour)){
                 currentCandle = candleList.get(i); // nextBar
                 currentHigh = Math.max(currentHigh, currentCandle.getHigh());
                 currentLow = Math.min(currentLow, currentCandle.getLow());
@@ -70,9 +77,10 @@ public class TimeSeriesUtil {
             double currentHigh = currentCandle.getHigh();
             double currentVolume = currentCandle.getVolume();
 
-            long nextDay = currentCandle.getTimestamp() + (3600000*24);
+            LocalDateTime tempLocalDateTime = generateLocalDateTime(currentCandle);
+            LocalDateTime nexDay = tempLocalDateTime.plusDays(1);
 
-            while (candleList.size() > i && (candleList.get(i).getTimestamp() < nextDay)){
+            while (candleList.size() > i && generateLocalDateTime(candleList.get(i)).isBefore(nexDay)){
                 currentCandle = candleList.get(i); // nextBar
                 currentHigh = Math.max(currentHigh, currentCandle.getHigh());
                 currentLow = Math.min(currentLow, currentCandle.getLow());
@@ -95,10 +103,10 @@ public class TimeSeriesUtil {
             double currentHigh = currentCandle.getHigh();
             double currentVolume = currentCandle.getVolume();
 
-            long nextDay = currentCandle.getTimestamp() + (3600000*24);
-            long nextWeek = nextDay * 7;
+            LocalDateTime tempLocalDateTime = generateLocalDateTime(currentCandle);
+            LocalDateTime nextWeek = tempLocalDateTime.plusDays(7);
 
-            while (candleList.size() > i && (candleList.get(i).getTimestamp() < nextWeek)){
+            while (candleList.size() > i && (generateLocalDateTime(candleList.get(i)).isBefore(nextWeek))){
                 currentCandle = candleList.get(i); // nextBar
                 currentHigh = Math.max(currentHigh, currentCandle.getHigh());
                 currentLow = Math.min(currentLow, currentCandle.getLow());
@@ -112,8 +120,18 @@ public class TimeSeriesUtil {
         return aggCandles;
     }
 
+    private LocalDateTime generateLocalDateTime(Candle currentCandle) {
+        Timestamp ts = new Timestamp(currentCandle.getTimestamp());
+        Date tempDate = new Date(ts.getTime());
+        return tempDate.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+    }
+
     public List<StockData> aggregateStockDataToWeek(List<StockData> stockDataList) {
-        List<StockData> aggStockData = new ArrayList<>();
+        System.out.println("Aggregating StockData to one week...");
+        List<StockData> weeklyStockData = new ArrayList<>();
+
         for (int i = 0; i < stockDataList.size() ; i++) {
             StockData currentStock = stockDataList.get(i);
             double currentOpen = currentStock.getOpen();
@@ -121,20 +139,28 @@ public class TimeSeriesUtil {
             double currentHigh = currentStock.getHigh();
             double currentVolume = currentStock.getVolume();
 
-//            long nextDay = currentStock.getTimestamp() + (3600000*24);
-            long nextWeek = 0;//nextDay * 7;
+            //get date from millis and parse it into ZoneDateTime
+            ZonedDateTime date = getZonedDateTime(currentStock);
 
-            while (stockDataList.size() > i && Integer.valueOf(stockDataList.get(i).getDate()) < nextWeek){
-                currentStock = stockDataList.get(i); // nextBar
+            while (stockDataList.size() > i && getZonedDateTime(stockDataList.get(i)).isBefore(date.plusDays(1))){
+                currentStock = stockDataList.get(i);
                 currentHigh = Math.max(currentHigh, currentStock.getHigh());
                 currentLow = Math.min(currentLow, currentStock.getLow());
                 currentVolume += currentStock.getVolume();
                 i++;
             }
-//            long currentEndTime = currentStock.getTimestamp();
+            long currentEndTime = Long.valueOf(currentStock.getDate());
             double currentClose = currentStock.getClose();
-            aggStockData.add(new StockData("currentEndTime", "BTC", currentOpen, currentClose, currentLow, currentHigh, currentVolume));
+            weeklyStockData.add(new StockData(String.valueOf(currentEndTime), "BTC", currentOpen, currentClose, currentLow, currentHigh, currentVolume));
         }
-        return aggStockData;
+        return weeklyStockData;
+    }
+
+    @NotNull
+    private ZonedDateTime getZonedDateTime(StockData currentStock) {
+        Date tempDate = new Date(Long.valueOf(currentStock.getDate()) * 1000L);
+        final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy,MM,dd HH:mm:ss");
+        String dateAsText = new SimpleDateFormat("yyyy,MM,dd HH:mm:ss").format(tempDate);
+        return ZonedDateTime.of(LocalDate.parse(dateAsText, DATE_FORMAT), LocalTime.parse(dateAsText, DATE_FORMAT), ZoneId.systemDefault());
     }
 }

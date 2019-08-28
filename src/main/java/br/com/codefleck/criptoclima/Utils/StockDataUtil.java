@@ -4,11 +4,16 @@ import br.com.codefleck.criptoclima.enitities.Candle;
 import br.com.codefleck.criptoclima.enitities.StockData;
 import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -38,11 +43,11 @@ public class StockDataUtil {
         List<Candle> candleList = new ArrayList<>();
 
         for (StockData stock: stockDataList) {
-            //will receive the wrong date for now. Otherwise have to deal with parsing String date to long millis
-            Instant instant = Instant.now();
 
+            Timestamp timestamp = convertStringToTimestamp(stock.getDate());
+            
             Candle candle = new Candle(
-                    instant.toEpochMilli(),
+                    timestamp.getTime(),
                     stock.getOpen(),
                     stock.getClose(),
                     stock.getLow(),
@@ -52,5 +57,19 @@ public class StockDataUtil {
               candleList.add(candle);
         }
         return candleList;
+    }
+
+    public static Timestamp convertStringToTimestamp(String str_date) {
+        try {
+            DateFormat formatter;
+            formatter = new SimpleDateFormat("yyyy/MM/dd");
+            Date date = (Date) formatter.parse(str_date);
+            java.sql.Timestamp timeStampDate = new Timestamp(date.getTime());
+
+            return timeStampDate;
+        } catch (ParseException e) {
+            System.out.println("Exception :" + e);
+            return null;
+        }
     }
 }
