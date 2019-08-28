@@ -122,8 +122,7 @@ public class TimeSeriesUtil {
 
     private LocalDateTime generateLocalDateTime(Candle currentCandle) {
         Timestamp ts = new Timestamp(currentCandle.getTimestamp());
-        Date tempDate = new Date(ts.getTime());
-        return tempDate.toInstant()
+        return ts.toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime();
     }

@@ -8,10 +8,6 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -44,8 +40,8 @@ public class StockDataUtil {
 
         for (StockData stock: stockDataList) {
 
-            Timestamp timestamp = convertStringToTimestamp(stock.getDate());
-            
+            Timestamp timestamp = convertStringDateToTimestamp(stock.getDate());
+
             Candle candle = new Candle(
                     timestamp.getTime(),
                     stock.getOpen(),
@@ -59,11 +55,11 @@ public class StockDataUtil {
         return candleList;
     }
 
-    public static Timestamp convertStringToTimestamp(String str_date) {
+    public static Timestamp convertStringDateToTimestamp(String dateAsString) {
         try {
             DateFormat formatter;
-            formatter = new SimpleDateFormat("yyyy/MM/dd");
-            Date date = (Date) formatter.parse(str_date);
+            formatter = new SimpleDateFormat("yyyy-MM-dd");
+            Date date = formatter.parse(dateAsString);
             java.sql.Timestamp timeStampDate = new Timestamp(date.getTime());
 
             return timeStampDate;

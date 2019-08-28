@@ -1,19 +1,36 @@
 package br.com.codefleck.criptoclima.enitities;
 
+import br.com.codefleck.criptoclima.Utils.StockDataUtil;
+import br.com.codefleck.criptoclima.Utils.TimeSeriesUtil;
 import com.google.common.collect.ImmutableMap;
-import com.opencsv.CSVReader;
 import javafx.util.Pair;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.LineIterator;
+import org.jetbrains.annotations.NotNull;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.FileReader;
+import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class StockDataSetIterator implements DataSetIterator {
+
+    @Autowired
+    TimeSeriesUtil timeSeriesUtil;
+    @Autowired
+    StockDataUtil stockDataUtil;
+
     /** category and its index */
     private final Map<PriceCategory, Integer> featureMapIndex = ImmutableMap.of(PriceCategory.OPEN, 0, PriceCategory.CLOSE, 1,
             PriceCategory.LOW, 2, PriceCategory.HIGH, 3, PriceCategory.VOLUME, 4);
@@ -24,9 +41,9 @@ public class StockDataSetIterator implements DataSetIterator {
     private int predictLength = 24; // default 1, say, one day ahead prediction
 
     /** minimal values of each feature in stock dataset */
-    private double[] minArray = new double[VECTOR_SIZE];
+    private float[] minArray = new float[VECTOR_SIZE];
     /** maximal values of each feature in stock dataset */
-    private double[] maxArray = new double[VECTOR_SIZE];
+    private float[] maxArray = new float[VECTOR_SIZE];
 
     /** feature to be selected as a training target */
     private PriceCategory category;
@@ -36,19 +53,21 @@ public class StockDataSetIterator implements DataSetIterator {
 
     /** stock dataset for training */
     private List<StockData> train;
-    
+
     /** adjusted stock dataset for testing */
     private List<Pair<INDArray, INDArray>> test;
 
-    public StockDataSetIterator (String filename, String symbol, int miniBatchSize, int exampleLength, double splitRatio, PriceCategory category) {
-        List<StockData> stockDataList = readStockDataFromFile(filename);
-        List<StockData> reducedDataList = stockDataList.subList(0, 1800);
+    private String period;
+
+    public StockDataSetIterator (String filename, String symbol, int miniBatchSize, int exampleLength, double splitRatio, PriceCategory category, String period) {
+        this.period = period;
+        List<StockData> stockDataList = readStockDataFromFile(filename, period);
         this.miniBatchSize = miniBatchSize;
         this.exampleLength = exampleLength;
         this.category = category;
-        int split = (int) Math.round(reducedDataList.size() * splitRatio);
-        train = reducedDataList.subList(0, split);
-        test = generateTestDataSet(reducedDataList.subList(split, reducedDataList.size()));
+        int split = (int) Math.round(stockDataList.size() * splitRatio);
+        train = stockDataList.subList(0, split);
+        test = generateTestDataSet(stockDataList.subList(split, stockDataList.size()));
         initializeOffsets();
     }
 
@@ -61,9 +80,9 @@ public class StockDataSetIterator implements DataSetIterator {
 
     public List<Pair<INDArray, INDArray>> getTestDataSet() { return test; }
 
-    public double[] getMaxArray() { return maxArray; }
+    public float[] getMaxArray() { return maxArray; }
 
-    public double[] getMinArray() { return minArray; }
+    public float[] getMinArray() { return minArray; }
 
     public double getMaxNum (PriceCategory category) { return maxArray[featureMapIndex.get(category)]; }
 
@@ -74,12 +93,12 @@ public class StockDataSetIterator implements DataSetIterator {
         int actualMiniBatchSize = Math.min(num, exampleStartOffsets.size());
         INDArray input = Nd4j.create(new int[] {actualMiniBatchSize, VECTOR_SIZE, exampleLength}, 'f');
         INDArray label;
-        
-        if (category.equals(PriceCategory.ALL)) 
-        	label = Nd4j.create(new int[] {actualMiniBatchSize, VECTOR_SIZE, exampleLength}, 'f');
-        else 
-        	label = Nd4j.create(new int[] {actualMiniBatchSize, predictLength, exampleLength}, 'f');
-        
+
+        if (category.equals(PriceCategory.ALL))
+            label = Nd4j.create(new int[] {actualMiniBatchSize, VECTOR_SIZE, exampleLength}, 'f');
+        else
+            label = Nd4j.create(new int[] {actualMiniBatchSize, predictLength, exampleLength}, 'f');
+
         for (int index = 0; index < actualMiniBatchSize; index++) {
             int startIdx = exampleStartOffsets.removeFirst();
             int endIdx = startIdx + exampleLength;
@@ -154,21 +173,21 @@ public class StockDataSetIterator implements DataSetIterator {
     public boolean hasNext() { return exampleStartOffsets.size() > 0; }
 
     public DataSet next() { return next(miniBatchSize); }
-    
+
     private List<Pair<INDArray, INDArray>> generateTestDataSet (List<StockData> stockDataList) {
         System.out.println("generating test dataset...");
-    	int window = exampleLength + predictLength;
-    	List<Pair<INDArray, INDArray>> test = new ArrayList<>();
-    	for (int i = 0; i < stockDataList.size() - window; i++) {
-    		INDArray input = Nd4j.create(new int[] {exampleLength, VECTOR_SIZE}, 'f');
-    		for (int j = i; j < i + exampleLength; j++) {
-    			StockData stock = stockDataList.get(j);
-    			input.putScalar(new int[] {j - i, 0}, (stock.getOpen() - minArray[0]) / (maxArray[0] - minArray[0]));
-    			input.putScalar(new int[] {j - i, 1}, (stock.getClose() - minArray[1]) / (maxArray[1] - minArray[1]));
-    			input.putScalar(new int[] {j - i, 2}, (stock.getLow() - minArray[2]) / (maxArray[2] - minArray[2]));
-    			input.putScalar(new int[] {j - i, 3}, (stock.getHigh() - minArray[3]) / (maxArray[3] - minArray[3]));
-    			input.putScalar(new int[] {j - i, 4}, (stock.getVolume() - minArray[4]) / (maxArray[4] - minArray[4]));
-    		}
+        int window = exampleLength + predictLength;
+        List<Pair<INDArray, INDArray>> test = new ArrayList<>();
+        for (int i = 0; i < stockDataList.size() - window; i++) {
+            INDArray input = Nd4j.create(new int[] {exampleLength, VECTOR_SIZE}, 'f');
+            for (int j = i; j < i + exampleLength; j++) {
+                StockData stock = stockDataList.get(j);
+                input.putScalar(new int[] {j - i, 0}, (stock.getOpen() - minArray[0]) / (maxArray[0] - minArray[0]));
+                input.putScalar(new int[] {j - i, 1}, (stock.getClose() - minArray[1]) / (maxArray[1] - minArray[1]));
+                input.putScalar(new int[] {j - i, 2}, (stock.getLow() - minArray[2]) / (maxArray[2] - minArray[2]));
+                input.putScalar(new int[] {j - i, 3}, (stock.getHigh() - minArray[3]) / (maxArray[3] - minArray[3]));
+                input.putScalar(new int[] {j - i, 4}, (stock.getVolume() - minArray[4]) / (maxArray[4] - minArray[4]));
+            }
             StockData stock = stockDataList.get(i + exampleLength);
             INDArray label;
             if (category.equals(PriceCategory.ALL)) {
@@ -189,38 +208,117 @@ public class StockDataSetIterator implements DataSetIterator {
                     default: throw new NoSuchElementException();
                 }
             }
-    		test.add(new Pair<>(input, label));
-    	}
-    	return test;
+            test.add(new Pair<>(input, label));
+        }
+        return test;
     }
 
-	@SuppressWarnings("resource")
-	private List<StockData> readStockDataFromFile (String filename) {
+    @SuppressWarnings("resource")
+    public List<StockData> readStockDataFromFile (String filename, String period) {
         System.out.println("Reading stock data from file...");
         List<StockData> stockDataList = new ArrayList<>();
-        try {
-            for (int i = 0; i < maxArray.length; i++) { // initialize max and min arrays
-                maxArray[i] = Double.MIN_VALUE;
-                minArray[i] = Double.MAX_VALUE;
-            }
-            List<String[]> list = new CSVReader(new FileReader(filename)).readAll(); // load all elements in a list
-            boolean isFileHeader = true;
-            for (String[] arr : list) {
-                if (isFileHeader) {
-                    isFileHeader = false;
-                    continue;
+
+            try {
+                for (int i = 0; i < maxArray.length; i++) {
+                    maxArray[i] = Float.MIN_VALUE;
+                    minArray[i] = Float.MAX_VALUE;
                 }
-                double[] nums = new double[VECTOR_SIZE];
-                for (int i = 0; i < arr.length - 2; i++) {
-                    nums[i] = Double.valueOf(arr[i + 2]);
-                    if (nums[i] > maxArray[i]) maxArray[i] = nums[i];
-                    if (nums[i] < minArray[i]) minArray[i] = nums[i];
+
+                LineIterator it = FileUtils.lineIterator(new File(filename), "UTF-8");
+                List<String[]> list = new ArrayList<>();
+                boolean isFileHeader = true;
+                try {
+                    while (it.hasNext()) {
+                        String line = it.nextLine();
+                        if (isFileHeader) {
+                            isFileHeader = false;
+                            continue;
+                        }
+                        String[] splitted = line.split(",");
+                        list.add(splitted);
+                    }
+                } finally {
+                    LineIterator.closeQuietly(it);
                 }
-                stockDataList.add(new StockData(arr[0], arr[1], nums[0], nums[1], nums[2], nums[3], nums[4]));
+
+                for (String[] arr : list) {
+                    float[] nums = new float[VECTOR_SIZE];
+                    for (int i = 0; i < arr.length - 2; i++) {
+                        nums[i] = Float.valueOf(arr[i + 2]);
+                        if (nums[i] > maxArray[i]) maxArray[i] = nums[i];
+                        if (nums[i] < minArray[i]) minArray[i] = nums[i];
+                    }
+                    StockData stockData = new StockData(arr[0], arr[1], nums[0], nums[1], nums[2], nums[3], nums[4]);
+                    stockDataList.add(stockData);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (period.equals("daily")){
+            return stockDataList.subList(0,1800);
         }
-        return stockDataList;
+
+        if (period.equals("weekly")){
+
+            //system coming into a halt due to the large size of StockDataList. Will have to process the stockDataList in 2 parts.
+            List<StockData> dataListPartA = stockDataList.subList(0, (stockDataList.size()/2));
+            List<StockData> dataListPartB = stockDataList.subList((stockDataList.size()/2), stockDataList.size());
+
+            //System comes into a halt if I send lists to another class, let's bring the aggregate method over here then
+            System.out.println("Aggregating StockData to one week...");
+            List<StockData> aggStockDataPartA = aggregateStockDataToWeek(dataListPartA);
+            List<StockData> aggStockDataPartB = aggregateStockDataToWeek(dataListPartB);
+
+            //merging the two aggregated lists
+            List<StockData> aggStockData = new ArrayList<>(aggStockDataPartA);
+            aggStockData.addAll(aggStockDataPartB);
+
+            if (aggStockData.size() < 1800){
+                int i = 0;
+                do {
+                    aggStockData.add(aggStockData.get(i));
+                    i++;
+                } while (aggStockData.size() < 1800);
+            }
+            return aggStockData.subList(0, 1800);
+        }
+        System.out.println("Something went wrong while trying to read stockData from csv file.");
+        return null;
+    }
+
+    //this method is from TimeSeriesUtil..
+    private List<StockData> aggregateStockDataToWeek(List<StockData> stockDataList) {
+        List<StockData> weeklyStockData = new ArrayList<>();
+
+        for (int i = 0; i < stockDataList.size() ; i++) {
+            StockData currentStock = stockDataList.get(i);
+            double currentOpen = currentStock.getOpen();
+            double currentLow = currentStock.getLow();
+            double currentHigh = currentStock.getHigh();
+            double currentVolume = currentStock.getVolume();
+
+            //get date from millis and parse it into ZoneDateTime
+            ZonedDateTime date = getZonedDateTime(currentStock);
+
+            while (stockDataList.size() > i && getZonedDateTime(stockDataList.get(i)).isBefore(date.plusDays(1))){
+                currentStock = stockDataList.get(i);
+                currentHigh = Math.max(currentHigh, currentStock.getHigh());
+                currentLow = Math.min(currentLow, currentStock.getLow());
+                currentVolume += currentStock.getVolume();
+                i++;
+            }
+            long currentEndTime = Long.valueOf(currentStock.getDate());
+            double currentClose = currentStock.getClose();
+            weeklyStockData.add(new StockData(String.valueOf(currentEndTime), "BTC", currentOpen, currentClose, currentLow, currentHigh, currentVolume));
+        }
+        return weeklyStockData;
+    }
+
+    @NotNull
+    private ZonedDateTime getZonedDateTime(StockData currentStock) {
+        Date tempDate = new Date(Long.valueOf(currentStock.getDate()) * 1000L);
+        final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy,MM,dd HH:mm:ss");
+        String dateAsText = new SimpleDateFormat("yyyy,MM,dd HH:mm:ss").format(tempDate);
+        return ZonedDateTime.of(LocalDate.parse(dateAsText, DATE_FORMAT), LocalTime.parse(dateAsText, DATE_FORMAT), ZoneId.systemDefault());
     }
 }

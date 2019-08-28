@@ -20,4 +20,6 @@ public interface CandleService {
     List<Candle> findLastHourCandles();
 
     List<Candle> findLast30DaysCandles();
+
+    List<Candle> findLast210DaysCandles();
 }

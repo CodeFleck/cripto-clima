@@ -2,6 +2,7 @@ package br.com.codefleck.criptoclima.Utils;
 
 import br.com.codefleck.criptoclima.enitities.Candle;
 import br.com.codefleck.criptoclima.enitities.StockData;
+import br.com.codefleck.criptoclima.enitities.TimePeriod;
 import org.springframework.stereotype.Component;
 
 import java.io.FileWriter;
@@ -16,9 +17,9 @@ public class CsvFileWriterUtil {
     private static final String FILE_HEADER = "date,symbol,open,close,low, high, volume";
 
 
-    public void writeCsvFileForNeuralNets(List<Candle> candleList) throws IOException {
+    public void writeCsvFileForNeuralNets(List<Candle> candleList, TimePeriod timePeriod) throws IOException {
 
-        String csvFileForTrainingNeuralNets = "data/homePage_update_forecastData.csv";
+        String csvFileForTrainingNeuralNets = "data/homePage_update_forecastData_".concat(timePeriod.toString()).concat(".csv");
 
         FileWriter fileWriter = new FileWriter(csvFileForTrainingNeuralNets);
         try {
@@ -36,7 +37,7 @@ public class CsvFileWriterUtil {
                         .append(String.valueOf(candle.getVolume())).append(NEW_LINE_SEPARATOR);
             }
 
-            System.out.println("CSV file for created successfully!");
+            System.out.println("CSV file created successfully!");
             Thread.sleep(4000); //need this time for the file to unlock before is ready to use
 
         } catch (Exception e) {

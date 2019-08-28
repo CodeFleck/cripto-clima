@@ -39,16 +39,15 @@ public class NeuralNetTrainingService {
     private static int exampleLength = 312;
     private static StockDataSetIterator iterator;
 
-    public void trainNeuralNet(String symbol, int epochs, String selectedCategory) {
+    public void trainNeuralNet(String symbol, int epochs, String selectedCategory, String period) {
 
         int batchSize = 32; // mini-batch size
         double splitRatio = 0.8; // 80% for training, 20% for testing
         PriceCategory category = getSelectedCategory(selectedCategory);
-        String content = getCSVContent();
-
+        String content = getCSVContent(period);
 
         System.out.println("Creating dataSet iterator...");
-        iterator = new StockDataSetIterator(content, symbol, batchSize, exampleLength, splitRatio, category);
+        iterator = new StockDataSetIterator(content, symbol, batchSize, exampleLength, splitRatio, category, period);
         System.out.println("Loading test dataset...");
         List<Pair<INDArray, INDArray>> test = iterator.getTestDataSet();
 
@@ -74,7 +73,10 @@ public class NeuralNetTrainingService {
         System.out.println("Total number of network parameters: " + totalNumParams_before_saving);
 
         System.out.println("Saving model...");
-        File locationToSave = new File("models/StockPriceLSTM_".concat(String.valueOf(category)).concat(".zip"));
+        File locationToSave = new File("models/StockPriceLSTM_"
+                .concat("_").concat(String.valueOf(category))
+                .concat("_").concat(period.toUpperCase())
+                .concat(".zip"));
 
         // saveUpdater: i.e., the state for Momentum, RMSProp, Adagrad etc. Save this to train your network more in the future
         try {
@@ -90,7 +92,7 @@ public class NeuralNetTrainingService {
             e.printStackTrace();
         }
 
-        //print the score with every 1 iteration
+        //print the score with every 10 iterations
         net.setListeners(new ScoreIterationListener(10));
 
 		//Print the  number of parameters in the network (and for each layer)
@@ -106,7 +108,7 @@ public class NeuralNetTrainingService {
         ResultSet resultSet = resultSetService.saveResultSet(new ResultSet());
         Instant instant = Instant.now();
         resultSet.setTimestamp(instant.toEpochMilli());
-        resultSet.setPeriod(TimePeriod.ONE_HOUR);
+        resultSet.setPeriod(getTimePeriod(period));
 
         System.out.println("Evaluating...");
         if (category.equals(PriceCategory.ALL)) {
@@ -119,6 +121,14 @@ public class NeuralNetTrainingService {
             predictPriceOneAhead(net, test, max, min, category);
         }
         System.out.println("Done...");
+    }
+
+    private TimePeriod getTimePeriod(String period) {
+        switch (period){
+            case "daily": return TimePeriod.ONE_DAY;
+            case "weekly": return TimePeriod.ONE_WEEK;
+        }
+        return  TimePeriod.ONE_DAY;
     }
 
     private PriceCategory getSelectedCategory(String category) {
@@ -134,11 +144,20 @@ public class NeuralNetTrainingService {
     }
 
     @NotNull
-    private String getCSVContent() {
-        File file = new File("data/Kraken_BTCUSD_d.csv");
-        System.out.println("File Found : " + file.exists());
+    private String getCSVContent(String period) {
 
-        return file.getPath();
+        if (period.equals("weekly")){
+            File file = new File("data/coinbaseUSD_1-min_data_2014-12-01_to_2018-01-08.csv");
+            System.out.println("File Found : " + file.exists());
+            return file.getPath();
+        }
+        if (period.equals("daily")){
+            File file = new File("data/Kraken_BTCUSD_d.csv");
+            System.out.println("File Found : " + file.exists());
+            return file.getPath();
+        }
+        System.out.println("could not recognize period.");
+        return null;
     }
 
     /** Predict one feature of a stock one-day ahead */
@@ -206,7 +225,7 @@ public class NeuralNetTrainingService {
                         pricaCategoryForResult,
                         Double.valueOf(predicts[i].getDouble(n)),
                         Double.valueOf(actuals[i].getDouble(n)),
-                        TimePeriod.ONE_MINUTE,
+                        resultSet.getPeriod(),
                         resultSet.getId()
                 );
                 resultList.add(resultService.saveResult(result));

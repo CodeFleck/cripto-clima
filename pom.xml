@@ -88,13 +88,20 @@
 			<artifactId>nd4j-native-platform</artifactId>
 			<version>1.0.0-beta4</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.datavec/datavec-hadoop -->
 		<dependency>
-			<groupId>org.deeplearning4j</groupId>
-			<artifactId>dl4j-spark_2.11</artifactId>
-			<version>1.0.0-alpha_spark_2</version>
+			<groupId>org.datavec</groupId>
+			<artifactId>datavec-hadoop</artifactId>
+			<version>1.0.0-beta4</version>
 		</dependency>
+        <!-- https://mvnrepository.com/artifact/org.datavec/datavec-spark -->
+        <dependency>
+            <groupId>org.datavec</groupId>
+            <artifactId>datavec-spark_2.11</artifactId>
+            <version>1.0.0-beta4_spark_2</version>
+        </dependency>
 
-		<!--	others	-->
+        <!--	others	-->
 		<dependency>
 			<groupId>org.jfree</groupId>
 			<artifactId>jfreechart</artifactId>
