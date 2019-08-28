@@ -17,10 +17,10 @@ public class CsvDataHandlerTool {
 
     public static void main(String[] args) {
 
-        String path = getCSVFilePath();
+        final String PATH = getCSVFilePath();
 
         //load csv data
-        List<StockData> stockDataList = loadCsv(path);
+        List<StockData> stockDataList = loadCsv(PATH);
 
         //do something
         Collections.reverse(stockDataList);

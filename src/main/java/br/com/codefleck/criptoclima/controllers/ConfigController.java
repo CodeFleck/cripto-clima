@@ -25,14 +25,27 @@ public class ConfigController {
         return "config";
     }
 
-    @PostMapping("/init-training")
-    String initTraining(@ModelAttribute("epochs") int epochs){
+    @PostMapping("/init-training-daily")
+    String initTrainingDaily(@ModelAttribute("epochs") int epochs){
 
-        System.out.println("Starting training for neural nets. This may take a while...");
+        System.out.println("Starting training for daily neural nets. This may take a while...");
 
         ExecutorService executor = Executors.newFixedThreadPool(5); //picking a max of 5 threads at random, change this value as needed
         executor.submit(() -> {
-            trainingService.trainNeuralNet("BTC", epochs, "all");
+            trainingService.trainNeuralNet("BTC", epochs, "all", "daily");
+        });
+
+        return "redirect:/config";
+    }
+
+    @PostMapping("/init-training-weekly")
+    String initTrainingWeekly(@ModelAttribute("epochs") int epochs){
+
+        System.out.println("Starting training for weekly neural nets. This may take a while...");
+
+        ExecutorService executor = Executors.newFixedThreadPool(5); //picking a max of 5 threads at random, change this value as needed
+        executor.submit(() -> {
+            trainingService.trainNeuralNet("BTC", epochs, "all", "weekly");
         });
 
         return "redirect:/config";

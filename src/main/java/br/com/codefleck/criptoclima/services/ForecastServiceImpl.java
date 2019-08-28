@@ -45,7 +45,7 @@ public class ForecastServiceImpl {
         ResultSet resultSet = resultSetService.saveResultSet(new ResultSet(
                 instant.toEpochMilli(),
                 resultList,
-                TimePeriod.ONE_DAY
+                timePeriod
         ));
 
         for (int n = 0; n < 5; n++) {
@@ -69,11 +69,10 @@ public class ForecastServiceImpl {
                         pricaCategoryForResult,
                         Double.valueOf(predicts[i].getDouble(n)),
                         Double.valueOf(actuals[i].getDouble(n)),
-                        TimePeriod.ONE_MINUTE,
+                        resultSet.getPeriod(),
                         resultSet.getId()
                 );
                 resultList.add(resultService.saveResult(result));
-                resultList.add(result);
             }
         }
 

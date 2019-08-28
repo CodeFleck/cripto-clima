@@ -1,12 +1,14 @@
 package br.com.codefleck.criptoclima.services;
 
-import br.com.codefleck.criptoclima.enitities.results.Result;
+import br.com.codefleck.criptoclima.enitities.TimePeriod;
 import br.com.codefleck.criptoclima.enitities.results.ResultSet;
 import br.com.codefleck.criptoclima.repositories.ResultSetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.awt.print.Pageable;
 import java.util.Optional;
 
 /**
@@ -48,7 +50,19 @@ public class ResultSetServiceImpl implements ResultSetService {
     }
 
     @Override
-    public Optional<ResultSet> findFirstByOrderByIdDesc() {
+    public Optional<ResultSet> findFirstDailyResultSetByOrderByIdDesc() {
         return resultSetRepository.findFirstByOrderByIdDesc();
+    }
+
+    @Override
+    public Optional<ResultSet> findLatestWeeklyResultSet() {
+        Page<ResultSet> page = resultSetRepository.findAllResultSetWithPagination(new PageRequest(0,200));
+        return page.get().filter(resultSet -> resultSet.getPeriod() == TimePeriod.ONE_WEEK).findFirst();
+    }
+
+    @Override
+    public Optional<ResultSet> findLatestDailyResultSet() {
+        Page<ResultSet> page = resultSetRepository.findAllResultSetWithPagination(new PageRequest(0,200));
+        return page.get().filter(resultSet -> resultSet.getPeriod() == TimePeriod.ONE_DAY).findFirst();
     }
 }

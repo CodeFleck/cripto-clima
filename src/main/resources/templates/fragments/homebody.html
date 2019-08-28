@@ -5,8 +5,6 @@
     <meta http-equiv="Refresh" content="1800">
     <div class="site-content">
 
-        <div class="hero" data-bg-image="images/banner.png">
-        </div>
         <div class="forecast-table">
             <div class="container">
                 <div class="forecast-container">
@@ -38,9 +36,9 @@
                             </div>
 
                             <div class="degree">
-                                <p th:text="${high}">high</p>
+                                <p th:text="${weekDay1High}">weekDay1High</p>
                             </div>
-                            <small><p th:text="${low}">low2</p></small>
+                            <small><p th:text="${weekDay1Low}">weekDay1Low</p></small>
                         </div>
                     </div>
                     <div class="forecast">
@@ -99,8 +97,10 @@
                             <div class="forecast-icon">
                                 <img src="images/icons/icon-14.svg" alt="" width=48>
                             </div>
-                            <div class="degree">23<sup>o</sup>C</div>
-                            <small>18<sup>o</sup></small>
+                            <div class="degree">
+                                <p th:text="${weekDay6High}">weekDay6High</p>
+                            </div>
+                            <small><p th:text="${weekDay6Low}">weekDay6Low</p></small>
                         </div>
                     </div>
                 </div>
@@ -109,7 +109,7 @@
         <main class="main-content">
             <div class="fullwidth-block">
                 <div class="container">
-                    <h2 class="section-title">Live cameras</h2>
+                    <h2 class="section-title">Notícias</h2>
                     <div class="row">
                         <div class="col-md-3 col-sm-6">
                             <div class="live-camera">
