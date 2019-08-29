@@ -19,10 +19,7 @@ import java.util.Optional;
 public class CandleServiceImpl implements CandleService {
 
     private CandleRepository candleRepository;
-    private TimeSeriesUtil timeSeriesUtil;
-
-    @Autowired
-    public void setTimeSeriesUtil(TimeSeriesUtil timeSeriesUtil) { this.timeSeriesUtil = timeSeriesUtil; }
+    private TimeSeriesUtil timeSeriesUtil = new TimeSeriesUtil();
 
     @Autowired
     public void setCandleRepository(CandleRepository candleRepository) {
@@ -34,6 +31,7 @@ public class CandleServiceImpl implements CandleService {
         Iterable<Candle> iterable = candleRepository.findAll();
         List<Candle> candleList = new ArrayList<>();
         iterable.forEach(candleList::add);
+
         return candleList;
     }
 
@@ -59,7 +57,6 @@ public class CandleServiceImpl implements CandleService {
 
     @Override
     public List<Candle> findLastHourCandles() {
-
         Instant instant = Instant.now();
         instant = instant.minus(1, ChronoUnit.HOURS);
         long timestampMillisMinusOneHour = (instant.toEpochMilli());
@@ -70,7 +67,6 @@ public class CandleServiceImpl implements CandleService {
 
     @Override
     public List<Candle> findLast30DaysCandles() {
-
         Instant instant = Instant.now();
         instant = instant.minus(30, ChronoUnit.DAYS);
         long timestampMillisMinus30Days = (instant.toEpochMilli());
@@ -81,11 +77,10 @@ public class CandleServiceImpl implements CandleService {
 
     @Override
     public List<Candle> findLast210DaysCandles() {
-
         Instant instant = Instant.now();
         instant = instant.minus(210, ChronoUnit.DAYS);
         long timestampMillisMinus210Days = (instant.toEpochMilli());
-        List<Candle> oneWeekAggregatedList = timeSeriesUtil.aggregateTimeSeriesToOneWeek(candleRepository.findByTimestamp(timestampMillisMinus210Days));
+        List<Candle> oneWeekAggregatedList = timeSeriesUtil.aggregateTimeSeriesToSixDays(candleRepository.findByTimestamp(timestampMillisMinus210Days));
 
         return oneWeekAggregatedList;
 

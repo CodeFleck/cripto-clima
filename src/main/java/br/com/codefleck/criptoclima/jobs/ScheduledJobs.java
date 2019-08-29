@@ -36,13 +36,12 @@ public class ScheduledJobs {
     @Autowired
     ForecastServiceImpl forecastService;
     @Autowired
-    StockDataUtil stockDataUtil;
-    @Autowired
     CandleService candleService;
     @Autowired
     CsvFileWriterUtil csvFileWriterUtil;
-    @Autowired
-    TimeSeriesUtil timeSeriesUtil;
+
+    private TimeSeriesUtil timeSeriesUtil = new TimeSeriesUtil();
+    private StockDataUtil stockDataUtil = new StockDataUtil();
 
     @Async
     @Scheduled(cron = "0 0/28 * * * ?",zone = "America/Sao_Paulo") //job executes every 28 min.
@@ -105,7 +104,7 @@ public class ScheduledJobs {
             int extraCandlesToGetInDays = extraCandlesToGetInWeeks*7;
             List<Candle> extraCandles = getExtraDailyCandles(extraCandlesToGetInDays);
             Collections.reverse(extraCandles);
-            List<Candle> extraCandlesAggregatedInWeeks = timeSeriesUtil.aggregateTimeSeriesToOneWeek(extraCandles);
+            List<Candle> extraCandlesAggregatedInWeeks = timeSeriesUtil.aggregateTimeSeriesToSixDays(extraCandles);
             extraCandlesAggregatedInWeeks.forEach(candle -> candleList.add(candle));
         }
 

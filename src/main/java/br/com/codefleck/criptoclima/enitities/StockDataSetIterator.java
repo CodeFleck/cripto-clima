@@ -6,30 +6,20 @@ import com.google.common.collect.ImmutableMap;
 import javafx.util.Pair;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
-import org.jetbrains.annotations.NotNull;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class StockDataSetIterator implements DataSetIterator {
 
-    @Autowired
-    TimeSeriesUtil timeSeriesUtil;
-    @Autowired
-    StockDataUtil stockDataUtil;
+    private TimeSeriesUtil timeSeriesUtil = new TimeSeriesUtil();
+    private StockDataUtil stockDataUtil = new StockDataUtil();
 
     /** category and its index */
     private final Map<PriceCategory, Integer> featureMapIndex = ImmutableMap.of(PriceCategory.OPEN, 0, PriceCategory.CLOSE, 1,
@@ -217,13 +207,11 @@ public class StockDataSetIterator implements DataSetIterator {
     public List<StockData> readStockDataFromFile (String filename, String period) {
         System.out.println("Reading stock data from file...");
         List<StockData> stockDataList = new ArrayList<>();
-
             try {
                 for (int i = 0; i < maxArray.length; i++) {
                     maxArray[i] = Float.MIN_VALUE;
                     minArray[i] = Float.MAX_VALUE;
                 }
-
                 LineIterator it = FileUtils.lineIterator(new File(filename), "UTF-8");
                 List<String[]> list = new ArrayList<>();
                 boolean isFileHeader = true;
@@ -240,7 +228,6 @@ public class StockDataSetIterator implements DataSetIterator {
                 } finally {
                     LineIterator.closeQuietly(it);
                 }
-
                 for (String[] arr : list) {
                     float[] nums = new float[VECTOR_SIZE];
                     for (int i = 0; i < arr.length - 2; i++) {
@@ -254,25 +241,16 @@ public class StockDataSetIterator implements DataSetIterator {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            Collections.reverse(stockDataList);
         if (period.equals("daily")){
+
             return stockDataList.subList(0,1800);
         }
-
-        if (period.equals("weekly")){
-
-            //system coming into a halt due to the large size of StockDataList. Will have to process the stockDataList in 2 parts.
-            List<StockData> dataListPartA = stockDataList.subList(0, (stockDataList.size()/2));
-            List<StockData> dataListPartB = stockDataList.subList((stockDataList.size()/2), stockDataList.size());
-
-            //System comes into a halt if I send lists to another class, let's bring the aggregate method over here then
-            System.out.println("Aggregating StockData to one week...");
-            List<StockData> aggStockDataPartA = aggregateStockDataToWeek(dataListPartA);
-            List<StockData> aggStockDataPartB = aggregateStockDataToWeek(dataListPartB);
-
-            //merging the two aggregated lists
-            List<StockData> aggStockData = new ArrayList<>(aggStockDataPartA);
-            aggStockData.addAll(aggStockDataPartB);
-
+        if (period.equals("twoDays")){
+            System.out.println("Aggregating StockData into two day candles...");
+            List<Candle> candleList = stockDataUtil.tranformStockDataInCandle(stockDataList);
+            List<Candle> aggCandles = timeSeriesUtil.aggregateTimeSeriesToTwoDays(candleList);
+            List<StockData> aggStockData = stockDataUtil.tranformCandleInStockData(aggCandles);
             if (aggStockData.size() < 1800){
                 int i = 0;
                 do {
@@ -280,45 +258,71 @@ public class StockDataSetIterator implements DataSetIterator {
                     i++;
                 } while (aggStockData.size() < 1800);
             }
+
+            return aggStockData.subList(0, 1800);
+        }
+        if (period.equals("threeDays")){
+            System.out.println("Aggregating StockData into three day candles...");
+            List<Candle> candleList = stockDataUtil.tranformStockDataInCandle(stockDataList);
+            List<Candle> aggCandles = timeSeriesUtil.aggregateTimeSeriesToThreeDays(candleList);
+            List<StockData> aggStockData = stockDataUtil.tranformCandleInStockData(aggCandles);
+            if (aggStockData.size() < 1800){
+                int i = 0;
+                do {
+                    aggStockData.add(aggStockData.get(i));
+                    i++;
+                } while (aggStockData.size() < 1800);
+            }
+
+            return aggStockData.subList(0, 1800);
+        }
+        if (period.equals("fourDays")){
+            System.out.println("Aggregating StockData into four day candles...");
+            List<Candle> candleList = stockDataUtil.tranformStockDataInCandle(stockDataList);
+            List<Candle> aggCandles = timeSeriesUtil.aggregateTimeSeriesToFourDays(candleList);
+            List<StockData> aggStockData = stockDataUtil.tranformCandleInStockData(aggCandles);
+            if (aggStockData.size() < 1800){
+                int i = 0;
+                do {
+                    aggStockData.add(aggStockData.get(i));
+                    i++;
+                } while (aggStockData.size() < 1800);
+            }
+
+            return aggStockData.subList(0, 1800);
+        }
+        if (period.equals("fiveDays")){
+            System.out.println("Aggregating StockData into five day candles...");
+            List<Candle> candleList = stockDataUtil.tranformStockDataInCandle(stockDataList);
+            List<Candle> aggCandles = timeSeriesUtil.aggregateTimeSeriesToFiveDays(candleList);
+            List<StockData> aggStockData = stockDataUtil.tranformCandleInStockData(aggCandles);
+            if (aggStockData.size() < 1800){
+                int i = 0;
+                do {
+                    aggStockData.add(aggStockData.get(i));
+                    i++;
+                } while (aggStockData.size() < 1800);
+            }
+
+            return aggStockData.subList(0, 1800);
+        }
+        if (period.equals("weekly")){
+            System.out.println("Aggregating StockData to one week...");
+            List<Candle> candleList = stockDataUtil.tranformStockDataInCandle(stockDataList);
+            List<Candle> aggCandles = timeSeriesUtil.aggregateTimeSeriesToSixDays(candleList);
+            List<StockData> aggStockData = stockDataUtil.tranformCandleInStockData(aggCandles);
+            if (aggStockData.size() < 1800){
+                int i = 0;
+                do {
+                    aggStockData.add(aggStockData.get(i));
+                    i++;
+                } while (aggStockData.size() < 1800);
+            }
+
             return aggStockData.subList(0, 1800);
         }
         System.out.println("Something went wrong while trying to read stockData from csv file.");
+
         return null;
-    }
-
-    //this method is from TimeSeriesUtil..
-    private List<StockData> aggregateStockDataToWeek(List<StockData> stockDataList) {
-        List<StockData> weeklyStockData = new ArrayList<>();
-
-        for (int i = 0; i < stockDataList.size() ; i++) {
-            StockData currentStock = stockDataList.get(i);
-            double currentOpen = currentStock.getOpen();
-            double currentLow = currentStock.getLow();
-            double currentHigh = currentStock.getHigh();
-            double currentVolume = currentStock.getVolume();
-
-            //get date from millis and parse it into ZoneDateTime
-            ZonedDateTime date = getZonedDateTime(currentStock);
-
-            while (stockDataList.size() > i && getZonedDateTime(stockDataList.get(i)).isBefore(date.plusDays(1))){
-                currentStock = stockDataList.get(i);
-                currentHigh = Math.max(currentHigh, currentStock.getHigh());
-                currentLow = Math.min(currentLow, currentStock.getLow());
-                currentVolume += currentStock.getVolume();
-                i++;
-            }
-            long currentEndTime = Long.valueOf(currentStock.getDate());
-            double currentClose = currentStock.getClose();
-            weeklyStockData.add(new StockData(String.valueOf(currentEndTime), "BTC", currentOpen, currentClose, currentLow, currentHigh, currentVolume));
-        }
-        return weeklyStockData;
-    }
-
-    @NotNull
-    private ZonedDateTime getZonedDateTime(StockData currentStock) {
-        Date tempDate = new Date(Long.valueOf(currentStock.getDate()) * 1000L);
-        final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy,MM,dd HH:mm:ss");
-        String dateAsText = new SimpleDateFormat("yyyy,MM,dd HH:mm:ss").format(tempDate);
-        return ZonedDateTime.of(LocalDate.parse(dateAsText, DATE_FORMAT), LocalTime.parse(dateAsText, DATE_FORMAT), ZoneId.systemDefault());
     }
 }
