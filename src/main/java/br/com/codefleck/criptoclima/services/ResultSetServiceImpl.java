@@ -56,13 +56,13 @@ public class ResultSetServiceImpl implements ResultSetService {
 
     @Override
     public Optional<ResultSet> findLatestWeeklyResultSet() {
-        Page<ResultSet> page = resultSetRepository.findAllResultSetWithPagination(new PageRequest(0,200));
+        Page<ResultSet> page = resultSetRepository.findAllResultSetWithPagination(new PageRequest(0,900));
         return page.get().filter(resultSet -> resultSet.getPeriod() == TimePeriod.ONE_WEEK).findFirst();
     }
 
     @Override
     public Optional<ResultSet> findLatestDailyResultSet() {
-        Page<ResultSet> page = resultSetRepository.findAllResultSetWithPagination(new PageRequest(0,200));
+        Page<ResultSet> page = resultSetRepository.findAllResultSetWithPagination(new PageRequest(0,900));
         return page.get().filter(resultSet -> resultSet.getPeriod() == TimePeriod.ONE_DAY).findFirst();
     }
 }

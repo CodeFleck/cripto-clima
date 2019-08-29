@@ -146,15 +146,11 @@ public class ScheduledJobs {
     }
 
     private List<Candle> getExtraDailyCandles(int n) {
-
         File filename = new File("data/Kraken_BTCUSD_d.csv");
-
         List<StockData> stockDataList = new ArrayList<>();
         try {
             List<String[]> list = new CSVReader(new FileReader(filename)).readAll();
-
             boolean isFileHeader = true;
-
             for (String[] arr : list) {
                 if (isFileHeader) {
                     isFileHeader = false;
@@ -166,19 +162,16 @@ public class ScheduledJobs {
             e.printStackTrace();
         }
         List<Candle> candleList = stockDataUtil.tranformStockDataInCandle(stockDataList.subList(0, n));
+
         return candleList;
     }
 
     private List<Candle> getExtraOneMinuteCandles(int n) {
-
         File filename = new File("data/coinBaseDailyCloseDez2014-Jan2018.csv");
-
         List<StockData> stockDataList = new ArrayList<>();
         try {
             List<String[]> list = new CSVReader(new FileReader(filename)).readAll();
-
             boolean isFileHeader = true;
-
             for (String[] arr : list) {
                 if (isFileHeader) {
                     isFileHeader = false;
@@ -190,9 +183,9 @@ public class ScheduledJobs {
             e.printStackTrace();
         }
         List<Candle> candleList = stockDataUtil.tranformStockDataInCandle(stockDataList.subList((stockDataList.size() - n), stockDataList.size()));
+
         return candleList;
     }
-
 
     @NotNull
     private String getCSVContent(TimePeriod timePeriod) {
