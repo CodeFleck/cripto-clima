@@ -13,7 +13,7 @@ public interface ResultSetRepository extends CrudRepository<ResultSet, Integer> 
 
     Optional<ResultSet> findFirstByOrderByIdDesc();
 
-    @Query(value = "SELECT * FROM result_set ORDER BY id", nativeQuery = true)
+    @Query(value = "SELECT * FROM result_set ORDER BY id DESC", nativeQuery = true)
     Page<ResultSet> findAllResultSetWithPagination(PageRequest pageable);
 
 }

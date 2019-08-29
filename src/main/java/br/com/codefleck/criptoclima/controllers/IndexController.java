@@ -40,10 +40,19 @@ public class IndexController {
         //updating prediction for day 1
         if (dailyResultSetResponse.isPresent()){
             ResultSet latestDailyResultSet = dailyResultSetResponse.get();
+            System.out.println("Daily resultSet id: " + latestDailyResultSet.getId());
             Optional<List<Result>> resultListByResultSetResponse = resultService.getResultListByResultSetId(latestDailyResultSet.getId());
             if (resultListByResultSetResponse.isPresent()){
 
                 List<Result> resultListByDailyResultSet = resultListByResultSetResponse.get();
+
+                for (int i=0; i< resultListByDailyResultSet.size();i++){
+                    if (resultListByDailyResultSet.get(i).getPriceCategory() == PriceCategory.HIGH){
+                        System.out.println("Prediction for high: " + resultListByDailyResultSet.get(i).getPrediction());
+                        System.out.println("Actual for high: " + resultListByDailyResultSet.get(i).getActual());
+                    }
+                }
+
                 latestDailyResultSet.setResultList(resultListByDailyResultSet);
 
                 for (Result result : resultListByDailyResultSet) {
@@ -64,10 +73,19 @@ public class IndexController {
         //updating prediction for day 6
         if (weeklyResultSetResponse.isPresent()){
             ResultSet latestWeeklyResultSet = weeklyResultSetResponse.get();
+            System.out.println("weekly resultSet id: " + latestWeeklyResultSet.getId());
             Optional<List<Result>> resultListByResultSetResponse = resultService.getResultListByResultSetId(latestWeeklyResultSet.getId());
             if (resultListByResultSetResponse.isPresent()){
 
                 List<Result> resultListByWeeklyResultSet = resultListByResultSetResponse.get();
+
+                for (int i=0; i< resultListByWeeklyResultSet.size();i++){
+                    if (resultListByWeeklyResultSet.get(i).getPriceCategory() == PriceCategory.HIGH){
+                        System.out.println("Prediction for high: " + resultListByWeeklyResultSet.get(i).getPrediction());
+                        System.out.println("Actual for high: " + resultListByWeeklyResultSet.get(i).getActual());
+                    }
+                }
+
                 latestWeeklyResultSet.setResultList(resultListByWeeklyResultSet);
 
                 for (Result result : resultListByWeeklyResultSet) {
