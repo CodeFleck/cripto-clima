@@ -76,6 +76,46 @@ public class CandleServiceImpl implements CandleService {
     }
 
     @Override
+    public List<Candle> findLast60DaysCandles() {
+        Instant instant = Instant.now();
+        instant = instant.minus(60, ChronoUnit.DAYS);
+        long timestampMillisMinus60Days = (instant.toEpochMilli());
+        List<Candle> twoDaysAggregatedList = timeSeriesUtil.aggregateTimeSeriesToTwoDays(candleRepository.findByTimestamp(timestampMillisMinus60Days));
+
+        return twoDaysAggregatedList;
+    }
+
+    @Override
+    public List<Candle> findLast90DaysCandles() {
+        Instant instant = Instant.now();
+        instant = instant.minus(90, ChronoUnit.DAYS);
+        long timestampMillisMinus90Days = (instant.toEpochMilli());
+        List<Candle> threeDaysAggregatedList = timeSeriesUtil.aggregateTimeSeriesToThreeDays(candleRepository.findByTimestamp(timestampMillisMinus90Days));
+
+        return threeDaysAggregatedList;
+    }
+
+    @Override
+    public List<Candle> findLast120DaysCandles() {
+        Instant instant = Instant.now();
+        instant = instant.minus(120, ChronoUnit.DAYS);
+        long timestampMillisMinus120Days = (instant.toEpochMilli());
+        List<Candle> fourDaysAggregatedList = timeSeriesUtil.aggregateTimeSeriesToFourDays(candleRepository.findByTimestamp(timestampMillisMinus120Days));
+
+        return fourDaysAggregatedList;
+    }
+
+    @Override
+    public List<Candle> findLast190DaysCandles() {
+        Instant instant = Instant.now();
+        instant = instant.minus(190, ChronoUnit.DAYS);
+        long timestampMillisMinus190Days = (instant.toEpochMilli());
+        List<Candle> fiveDaysAggregatedList = timeSeriesUtil.aggregateTimeSeriesToFiveDays(candleRepository.findByTimestamp(timestampMillisMinus190Days));
+
+        return fiveDaysAggregatedList;
+    }
+
+    @Override
     public List<Candle> findLast210DaysCandles() {
         Instant instant = Instant.now();
         instant = instant.minus(210, ChronoUnit.DAYS);
@@ -85,4 +125,5 @@ public class CandleServiceImpl implements CandleService {
         return oneWeekAggregatedList;
 
     }
+
 }

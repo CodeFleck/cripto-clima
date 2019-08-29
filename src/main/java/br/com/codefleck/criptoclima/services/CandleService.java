@@ -21,5 +21,13 @@ public interface CandleService {
 
     List<Candle> findLast30DaysCandles();
 
+    List<Candle> findLast60DaysCandles();
+
     List<Candle> findLast210DaysCandles();
+
+    List<Candle> findLast90DaysCandles();
+
+    List<Candle> findLast120DaysCandles();
+
+    List<Candle> findLast190DaysCandles();
 }
