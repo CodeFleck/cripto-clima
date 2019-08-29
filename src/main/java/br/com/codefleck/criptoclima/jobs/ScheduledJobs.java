@@ -45,7 +45,7 @@ public class ScheduledJobs {
     TimeSeriesUtil timeSeriesUtil;
 
     @Async
-    @Scheduled(cron = "0 0/29 * * * ?",zone = "America/Sao_Paulo") //job executes every 30 min.
+    @Scheduled(cron = "0 0/28 * * * ?",zone = "America/Sao_Paulo") //job executes every 28 min.
     public void updateDailyForecastForHomePageJob() {
         System.out.println("JOB -> executing updateDailyForecasetForhomePageJob...");
 
