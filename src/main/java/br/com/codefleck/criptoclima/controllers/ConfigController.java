@@ -28,11 +28,64 @@ public class ConfigController {
     @PostMapping("/init-training-daily")
     String initTrainingDaily(@ModelAttribute("epochs") int epochs){
 
-        System.out.println("Starting training for daily neural nets. This may take a while...");
+        System.out.println("Starting training for daily neural net. This may take a while...");
 
-        ExecutorService executor = Executors.newFixedThreadPool(5); //picking a max of 5 threads at random, change this value as needed
+        //picking a max of 5 threads at random, pretty sure dl4j creates it's own pool
+        ExecutorService executor = Executors.newFixedThreadPool(5);
         executor.submit(() -> {
             trainingService.trainNeuralNet("BTC", epochs, "all", "daily");
+        });
+
+        return "redirect:/config";
+    }
+
+    @PostMapping("/init-training-two-days")
+    String initTrainingTwoDays(@ModelAttribute("epochs") int epochs){
+
+        System.out.println("Starting training for two days neural net. This may take a while...");
+
+        ExecutorService executor = Executors.newFixedThreadPool(5);
+        executor.submit(() -> {
+            trainingService.trainNeuralNet("BTC", epochs, "all", "twoDays");
+        });
+
+        return "redirect:/config";
+    }
+
+    @PostMapping("/init-training-three-days")
+    String initTrainingThreeDays(@ModelAttribute("epochs") int epochs){
+
+        System.out.println("Starting training for two days neural net. This may take a while...");
+
+        ExecutorService executor = Executors.newFixedThreadPool(5);
+        executor.submit(() -> {
+            trainingService.trainNeuralNet("BTC", epochs, "all", "threeDays");
+        });
+
+        return "redirect:/config";
+    }
+
+    @PostMapping("/init-training-four-days")
+    String initTrainingFourDays(@ModelAttribute("epochs") int epochs){
+
+        System.out.println("Starting training for two days neural net. This may take a while...");
+
+        ExecutorService executor = Executors.newFixedThreadPool(5);
+        executor.submit(() -> {
+            trainingService.trainNeuralNet("BTC", epochs, "all", "fourDays");
+        });
+
+        return "redirect:/config";
+    }
+
+    @PostMapping("/init-training-five-days")
+    String initTrainingFiveDays(@ModelAttribute("epochs") int epochs){
+
+        System.out.println("Starting training for two days neural net. This may take a while...");
+
+        ExecutorService executor = Executors.newFixedThreadPool(5);
+        executor.submit(() -> {
+            trainingService.trainNeuralNet("BTC", epochs, "all", "fiveDays");
         });
 
         return "redirect:/config";
@@ -41,9 +94,9 @@ public class ConfigController {
     @PostMapping("/init-training-weekly")
     String initTrainingWeekly(@ModelAttribute("epochs") int epochs){
 
-        System.out.println("Starting training for weekly neural nets. This may take a while...");
+        System.out.println("Starting training for weekly neural net. This may take a while...");
 
-        ExecutorService executor = Executors.newFixedThreadPool(5); //picking a max of 5 threads at random, change this value as needed
+        ExecutorService executor = Executors.newFixedThreadPool(5);
         executor.submit(() -> {
             trainingService.trainNeuralNet("BTC", epochs, "all", "weekly");
         });

@@ -19,10 +19,7 @@ import java.util.Optional;
 public class CandleServiceImpl implements CandleService {
 
     private CandleRepository candleRepository;
-    private TimeSeriesUtil timeSeriesUtil;
-
-    @Autowired
-    public void setTimeSeriesUtil(TimeSeriesUtil timeSeriesUtil) { this.timeSeriesUtil = timeSeriesUtil; }
+    private TimeSeriesUtil timeSeriesUtil = new TimeSeriesUtil();
 
     @Autowired
     public void setCandleRepository(CandleRepository candleRepository) {
@@ -34,6 +31,7 @@ public class CandleServiceImpl implements CandleService {
         Iterable<Candle> iterable = candleRepository.findAll();
         List<Candle> candleList = new ArrayList<>();
         iterable.forEach(candleList::add);
+
         return candleList;
     }
 
@@ -59,7 +57,6 @@ public class CandleServiceImpl implements CandleService {
 
     @Override
     public List<Candle> findLastHourCandles() {
-
         Instant instant = Instant.now();
         instant = instant.minus(1, ChronoUnit.HOURS);
         long timestampMillisMinusOneHour = (instant.toEpochMilli());
@@ -70,7 +67,6 @@ public class CandleServiceImpl implements CandleService {
 
     @Override
     public List<Candle> findLast30DaysCandles() {
-
         Instant instant = Instant.now();
         instant = instant.minus(30, ChronoUnit.DAYS);
         long timestampMillisMinus30Days = (instant.toEpochMilli());
@@ -80,14 +76,54 @@ public class CandleServiceImpl implements CandleService {
     }
 
     @Override
-    public List<Candle> findLast210DaysCandles() {
+    public List<Candle> findLast60DaysCandles() {
+        Instant instant = Instant.now();
+        instant = instant.minus(60, ChronoUnit.DAYS);
+        long timestampMillisMinus60Days = (instant.toEpochMilli());
+        List<Candle> twoDaysAggregatedList = timeSeriesUtil.aggregateTimeSeriesToTwoDays(candleRepository.findByTimestamp(timestampMillisMinus60Days));
 
+        return twoDaysAggregatedList;
+    }
+
+    @Override
+    public List<Candle> findLast90DaysCandles() {
+        Instant instant = Instant.now();
+        instant = instant.minus(90, ChronoUnit.DAYS);
+        long timestampMillisMinus90Days = (instant.toEpochMilli());
+        List<Candle> threeDaysAggregatedList = timeSeriesUtil.aggregateTimeSeriesToThreeDays(candleRepository.findByTimestamp(timestampMillisMinus90Days));
+
+        return threeDaysAggregatedList;
+    }
+
+    @Override
+    public List<Candle> findLast120DaysCandles() {
+        Instant instant = Instant.now();
+        instant = instant.minus(120, ChronoUnit.DAYS);
+        long timestampMillisMinus120Days = (instant.toEpochMilli());
+        List<Candle> fourDaysAggregatedList = timeSeriesUtil.aggregateTimeSeriesToFourDays(candleRepository.findByTimestamp(timestampMillisMinus120Days));
+
+        return fourDaysAggregatedList;
+    }
+
+    @Override
+    public List<Candle> findLast190DaysCandles() {
+        Instant instant = Instant.now();
+        instant = instant.minus(190, ChronoUnit.DAYS);
+        long timestampMillisMinus190Days = (instant.toEpochMilli());
+        List<Candle> fiveDaysAggregatedList = timeSeriesUtil.aggregateTimeSeriesToFiveDays(candleRepository.findByTimestamp(timestampMillisMinus190Days));
+
+        return fiveDaysAggregatedList;
+    }
+
+    @Override
+    public List<Candle> findLast210DaysCandles() {
         Instant instant = Instant.now();
         instant = instant.minus(210, ChronoUnit.DAYS);
         long timestampMillisMinus210Days = (instant.toEpochMilli());
-        List<Candle> oneWeekAggregatedList = timeSeriesUtil.aggregateTimeSeriesToOneWeek(candleRepository.findByTimestamp(timestampMillisMinus210Days));
+        List<Candle> oneWeekAggregatedList = timeSeriesUtil.aggregateTimeSeriesToSixDays(candleRepository.findByTimestamp(timestampMillisMinus210Days));
 
         return oneWeekAggregatedList;
 
     }
+
 }

@@ -44,7 +44,7 @@ public class NeuralNetTrainingService {
         int batchSize = 32; // mini-batch size
         double splitRatio = 0.8; // 80% for training, 20% for testing
         PriceCategory category = getSelectedCategory(selectedCategory);
-        String content = getCSVContent(period);
+        String content = getCSVContent();
 
         System.out.println("Creating dataSet iterator...");
         iterator = new StockDataSetIterator(content, symbol, batchSize, exampleLength, splitRatio, category, period);
@@ -95,15 +95,15 @@ public class NeuralNetTrainingService {
         //print the score with every 10 iterations
         net.setListeners(new ScoreIterationListener(10));
 
-		//Print the  number of parameters in the network (and for each layer)
-		Layer[] layers = net.getLayers();
-		int totalNumParams = 0;
-		for( int i=0; i<layers.length; i++ ){
-			int nParams = Math.toIntExact(layers[i].numParams());
-			System.out.println("Number of parameters in layer " + i + ": " + nParams);
-			totalNumParams += nParams;
-		}
-		System.out.println("Total number of network parameters: " + totalNumParams);
+        //Print the  number of parameters in the network (and for each layer)
+        Layer[] layers = net.getLayers();
+        int totalNumParams = 0;
+        for( int i=0; i<layers.length; i++ ){
+            int nParams = Math.toIntExact(layers[i].numParams());
+            System.out.println("Number of parameters in layer " + i + ": " + nParams);
+            totalNumParams += nParams;
+        }
+        System.out.println("Total number of network parameters: " + totalNumParams);
 
         ResultSet resultSet = resultSetService.saveResultSet(new ResultSet());
         Instant instant = Instant.now();
@@ -144,41 +144,31 @@ public class NeuralNetTrainingService {
     }
 
     @NotNull
-    private String getCSVContent(String period) {
-
-        if (period.equals("weekly")){
-            File file = new File("data/coinbaseUSD_1-min_data_2014-12-01_to_2018-01-08.csv");
-            System.out.println("File Found : " + file.exists());
-            return file.getPath();
-        }
-        if (period.equals("daily")){
-            File file = new File("data/Kraken_BTCUSD_d.csv");
-            System.out.println("File Found : " + file.exists());
-            return file.getPath();
-        }
-        System.out.println("could not recognize period.");
-        return null;
+    private String getCSVContent() {
+        File file = new File("data/Kraken_BTCUSD_d.csv");
+        System.out.println("File Found : " + file.exists());
+        return file.getPath();
     }
 
     /** Predict one feature of a stock one-day ahead */
     public void predictPriceOneAhead (MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, double max, double min, PriceCategory category) {
         double[] predicts = new double[testData.size()];
         double[] actuals = new double[testData.size()];
-        
+
         for (int i = 0; i < testData.size(); i++) {
             predicts[i] = net.rnnTimeStep(testData.get(i).getKey()).getDouble(exampleLength - 1) * (max - min) + min;
             actuals[i] = testData.get(i).getValue().getDouble(0);
         }
-        
-        RegressionEvaluation eval = net.evaluateRegression(iterator);   
+
+        RegressionEvaluation eval = net.evaluateRegression(iterator);
         System.out.println(eval.stats());
-        
+
         System.out.println("Printing predicted and actual values...");
         System.out.println("Predict, Actual");
-        
-        for (int i = 0; i < predicts.length; i++) 
-        	System.out.println(predicts[i] + "," + actuals[i]);
-        
+
+        for (int i = 0; i < predicts.length; i++)
+            System.out.println(predicts[i] + "," + actuals[i]);
+
         System.out.println("Plottig...");
     }
 
@@ -191,11 +181,11 @@ public class NeuralNetTrainingService {
             predicts[i] = net.rnnTimeStep(testData.get(i).getKey()).getRow(exampleLength - 1).mul(max.sub(min)).add(min);
             actuals[i] = testData.get(i).getValue();
         }
-        
+
         System.out.println("Printing predicted and actual values...");
         System.out.println("Predict, Actual");
         for (int i = 0; i < predicts.length; i++){
-        	System.out.println(predicts[i] + "\t" + actuals[i]);
+            System.out.println(predicts[i] + "\t" + actuals[i]);
         }
 
         if (iterator != null) {

@@ -1,14 +1,10 @@
 package br.com.codefleck.criptoclima.services;
 
-import br.com.codefleck.criptoclima.enitities.TimePeriod;
 import br.com.codefleck.criptoclima.enitities.results.ResultSet;
 import br.com.codefleck.criptoclima.repositories.ResultSetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Pageable;
 import java.util.Optional;
 
 /**
@@ -19,50 +15,49 @@ public class ResultSetServiceImpl implements ResultSetService {
 
     private ResultSetRepository resultSetRepository;
 
-    @Autowired
-    public void setResultSetRepository(ResultSetRepository resultSetRepository) {
-        this.resultSetRepository = resultSetRepository;
-    }
-
-    @Override
-    public Iterable<ResultSet> listAllResultSets() {
-        return resultSetRepository.findAll();
-    }
-
-    @Override
-    public Optional<ResultSet> getResultSetById(Integer id) {
-        return resultSetRepository.findById(id);
-    }
-
     @Override
     public ResultSet saveResultSet(ResultSet resultSet) {
         return resultSetRepository.save(resultSet);
     }
 
     @Override
-    public void deleteResultSetById(Integer id) {
-        resultSetRepository.deleteById(id);
+    public Optional<ResultSet> findLatestResultSetWithOneDayPeriod() {
+        Optional<ResultSet> resultSet = resultSetRepository.findLatestResultSetWithOneDayPeriod();
+        return resultSet;
     }
 
     @Override
-    public void deleteResultSet(ResultSet resultSet) {
-        resultSetRepository.delete(resultSet);
+    public Optional<ResultSet> findLatestResultSetWithTwoDaysPeriod() {
+        Optional<ResultSet> resultSet = resultSetRepository.findLatestResultSetWithTwoDaysPeriod();
+        return resultSet;
     }
 
     @Override
-    public Optional<ResultSet> findFirstDailyResultSetByOrderByIdDesc() {
-        return resultSetRepository.findFirstByOrderByIdDesc();
+    public Optional<ResultSet> findLatestResultSetWithThreeDaysPeriod() {
+        Optional<ResultSet> resultSet = resultSetRepository.findLatestResultSetWithThreeDaysPeriod();
+        return resultSet;
     }
 
     @Override
-    public Optional<ResultSet> findLatestWeeklyResultSet() {
-        Page<ResultSet> page = resultSetRepository.findAllResultSetWithPagination(new PageRequest(0,200));
-        return page.get().filter(resultSet -> resultSet.getPeriod() == TimePeriod.ONE_WEEK).findFirst();
+    public Optional<ResultSet> findLatestResultSetWithFourDaysPeriod() {
+        Optional<ResultSet> resultSet = resultSetRepository.findLatestResultSetWithFourDaysPeriod();
+        return resultSet;
     }
 
     @Override
-    public Optional<ResultSet> findLatestDailyResultSet() {
-        Page<ResultSet> page = resultSetRepository.findAllResultSetWithPagination(new PageRequest(0,200));
-        return page.get().filter(resultSet -> resultSet.getPeriod() == TimePeriod.ONE_DAY).findFirst();
+    public Optional<ResultSet> findLatestResultSetWithFiveDaysPeriod() {
+        Optional<ResultSet> resultSet = resultSetRepository.findLatestResultSetWithFiveDaysPeriod();
+        return resultSet;
+    }
+
+    @Override
+    public Optional<ResultSet> findLatestResultSetWithSixDaysPeriod() {
+        Optional<ResultSet> resultSet = resultSetRepository.findLatestResultSetWithSixDaysPeriod();
+        return resultSet;
+    }
+
+    @Autowired
+    public void setResultSetRepository(ResultSetRepository resultSetRepository) {
+        this.resultSetRepository = resultSetRepository;
     }
 }

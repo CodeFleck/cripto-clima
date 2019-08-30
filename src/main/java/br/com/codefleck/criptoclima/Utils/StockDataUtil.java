@@ -2,7 +2,6 @@ package br.com.codefleck.criptoclima.Utils;
 
 import br.com.codefleck.criptoclima.enitities.Candle;
 import br.com.codefleck.criptoclima.enitities.StockData;
-import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -12,13 +11,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@Component
 public class StockDataUtil {
 
+    public StockDataUtil() { }
+
     public List<StockData> tranformCandleInStockData(List<Candle> candleList){
-
         List<StockData> stockDataList = new ArrayList<>();
-
         for (Candle candle : candleList) {
             StockData stockData = new StockData(
                 String.valueOf(candle.getTimestamp()),
@@ -31,17 +29,14 @@ public class StockDataUtil {
             );
             stockDataList.add(stockData);
         }
+
         return stockDataList;
     }
 
     public List<Candle> tranformStockDataInCandle(List<StockData> stockDataList) {
-
         List<Candle> candleList = new ArrayList<>();
-
         for (StockData stock: stockDataList) {
-
             Timestamp timestamp = convertStringDateToTimestamp(stock.getDate());
-
             Candle candle = new Candle(
                     timestamp.getTime(),
                     stock.getOpen(),
@@ -52,6 +47,7 @@ public class StockDataUtil {
             );
               candleList.add(candle);
         }
+
         return candleList;
     }
 
