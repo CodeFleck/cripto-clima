@@ -1,9 +1,11 @@
 package br.com.codefleck.criptoclima.controllers;
 
 import br.com.codefleck.criptoclima.Utils.TranslatorUtil;
+import br.com.codefleck.criptoclima.enitities.Candle;
 import br.com.codefleck.criptoclima.enitities.PriceCategory;
 import br.com.codefleck.criptoclima.enitities.results.Result;
 import br.com.codefleck.criptoclima.enitities.results.ResultSet;
+import br.com.codefleck.criptoclima.services.CandleService;
 import br.com.codefleck.criptoclima.services.ResultService;
 import br.com.codefleck.criptoclima.services.ResultSetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,8 @@ public class IndexController {
     ResultService resultService;
     @Autowired
     TranslatorUtil translator;
+    @Autowired
+    CandleService candleService;
 
     @RequestMapping("/")
     String index(Model model) {
@@ -39,6 +43,15 @@ public class IndexController {
         Optional<ResultSet> fiveDayResultSetResponse = resultSetService.findLatestResultSetWithFiveDaysPeriod();
         Optional<ResultSet> sixDayResultSetResponse = resultSetService.findLatestResultSetWithSixDaysPeriod();
 
+        //updating latest price
+        Optional<Candle> latestCandle = candleService.findLastCandle();
+        if (latestCandle.isPresent()){
+            Candle candle = latestCandle.get();
+            model.addAttribute("latestPrice", round(candle.getClose()));
+        } else {
+            model.addAttribute("latestPrice", "0");
+        }
+
         //updating prediction for day 1
         if (oneDayResultSetResponse.isPresent()){
             ResultSet latestDailyResultSet = oneDayResultSetResponse.get();
@@ -48,10 +61,10 @@ public class IndexController {
                 latestDailyResultSet.setResultList(resultListByDailyResultSet);
                 for (Result result : resultListByDailyResultSet) {
                     if (result.getPriceCategory() == PriceCategory.HIGH){
-                        double weekDay1High = Math.round(result.getPrediction());
+                        double weekDay1High = round(result.getPrediction());
                         model.addAttribute("weekDay1High", weekDay1High);
                     } else if (result.getPriceCategory() == PriceCategory.LOW){
-                        double weekDay1Low = Math.round(result.getPrediction());
+                        double weekDay1Low = round(result.getPrediction());
                         model.addAttribute("weekDay1Low", weekDay1Low);
                     }
                 }
@@ -70,10 +83,10 @@ public class IndexController {
                 latestTwoDaysResultSet.setResultList(resultListForTwoDaysResultSet);
                 for (Result result : resultListForTwoDaysResultSet) {
                     if (result.getPriceCategory() == PriceCategory.HIGH){
-                        double weekDay2High = Math.round(result.getPrediction());
+                        double weekDay2High = round(result.getPrediction());
                         model.addAttribute("weekDay2High", weekDay2High);
                     } else if (result.getPriceCategory() == PriceCategory.LOW){
-                        double weekDay2Low = Math.round(result.getPrediction());
+                        double weekDay2Low = round(result.getPrediction());
                         model.addAttribute("weekDay2Low", weekDay2Low);
                     }
                 }
@@ -92,10 +105,10 @@ public class IndexController {
                 latestThreeDaysResultSet.setResultList(resultListForThreeDaysResultSet);
                 for (Result result : resultListForThreeDaysResultSet) {
                     if (result.getPriceCategory() == PriceCategory.HIGH){
-                        double weekDay3High = Math.round(result.getPrediction());
+                        double weekDay3High = round(result.getPrediction());
                         model.addAttribute("weekDay3High", weekDay3High);
                     } else if (result.getPriceCategory() == PriceCategory.LOW){
-                        double weekDay3Low = Math.round(result.getPrediction());
+                        double weekDay3Low = round(result.getPrediction());
                         model.addAttribute("weekDay3Low", weekDay3Low);
                     }
                 }
@@ -114,10 +127,10 @@ public class IndexController {
                 latestFourDaysResultSet.setResultList(resultListForFourDaysResultSet);
                 for (Result result : resultListForFourDaysResultSet) {
                     if (result.getPriceCategory() == PriceCategory.HIGH){
-                        double weekDay4High = Math.round(result.getPrediction());
+                        double weekDay4High = round(result.getPrediction());
                         model.addAttribute("weekDay4High", weekDay4High);
                     } else if (result.getPriceCategory() == PriceCategory.LOW){
-                        double weekDay4Low = Math.round(result.getPrediction());
+                        double weekDay4Low = round(result.getPrediction());
                         model.addAttribute("weekDay4Low", weekDay4Low);
                     }
                 }
@@ -136,10 +149,10 @@ public class IndexController {
                 latestFiveDaysResultSet.setResultList(resultListForFiveDaysResultSet);
                 for (Result result : resultListForFiveDaysResultSet) {
                     if (result.getPriceCategory() == PriceCategory.HIGH){
-                        double weekDay5High = Math.round(result.getPrediction());
+                        double weekDay5High = round(result.getPrediction());
                         model.addAttribute("weekDay5High", weekDay5High);
                     } else if (result.getPriceCategory() == PriceCategory.LOW){
-                        double weekDay5Low = Math.round(result.getPrediction());
+                        double weekDay5Low = round(result.getPrediction());
                         model.addAttribute("weekDay5Low", weekDay5Low);
                     }
                 }
@@ -158,10 +171,10 @@ public class IndexController {
                 latestSixDaysResultSet.setResultList(resultListForSixDaysResultSet);
                 for (Result result : resultListForSixDaysResultSet) {
                     if (result.getPriceCategory() == PriceCategory.HIGH){
-                        double weekDay6High = Math.round(result.getPrediction());
+                        double weekDay6High = round(result.getPrediction());
                         model.addAttribute("weekDay6High", weekDay6High);
                     } else if (result.getPriceCategory() == PriceCategory.LOW){
-                        double weekDay6Low = Math.round(result.getPrediction());
+                        double weekDay6Low = round(result.getPrediction());
                         model.addAttribute("weekDay6Low", weekDay6Low);
                     }
                 }
@@ -183,5 +196,9 @@ public class IndexController {
         model.addAttribute("weekDay6", translator.translateDayOfWeek(String.valueOf(localDate.plusDays(6).getDayOfWeek()).toLowerCase()));
 
         return "index";
+    }
+
+    private double round(double n){
+        return Math.round(n * 100d) / 100d;
     }
 }

@@ -28,7 +28,7 @@
         var LOW = data[1][4];
         var VOLUME = data[1][5];
 
-        document.getElementById("btc").innerHTML = CLOSE.toFixed(2);
+        // document.getElementById("btc").innerHTML = CLOSE.toFixed(2);
 
         var candle = {};
         candle.timestamp = DATE;

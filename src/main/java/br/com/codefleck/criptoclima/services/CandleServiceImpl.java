@@ -56,6 +56,11 @@ public class CandleServiceImpl implements CandleService {
     }
 
     @Override
+    public Optional<Candle> findLastCandle() {
+        return candleRepository.findFirstByOrderByIdDesc();
+    }
+
+    @Override
     public List<Candle> findLastHourCandles() {
         Instant instant = Instant.now();
         instant = instant.minus(1, ChronoUnit.HOURS);
