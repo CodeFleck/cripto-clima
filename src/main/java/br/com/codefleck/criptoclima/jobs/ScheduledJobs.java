@@ -46,7 +46,7 @@ public class ScheduledJobs {
     final int PREDICTION_CANDLE_LIST_SIZE = 30;
 
     @Async
-    @Scheduled(cron = "0 0/25 * * * ?",zone = "America/Sao_Paulo") //job executes every 28 min.
+    @Scheduled(cron = "0 0/25 * * * ?",zone = "America/Sao_Paulo") //job executes every 25 min.
     public void updateDailyForecastForHomePageJob() {
         System.out.println("JOB -> executing updateDailyForecasetForhomePageJob...");
 
@@ -230,7 +230,7 @@ public class ScheduledJobs {
     }
 
     @Async
-    @Scheduled(cron = "0 0/1 * * * ?",zone = "America/Sao_Paulo")
+    @Scheduled(cron = "0 0/29 * * * ?",zone = "America/Sao_Paulo")
     public void updateFiveDaysForecastForHomePageJob() {
         System.out.println("JOB -> executing updateFiveDaysForecastForHomePageJob...");
 
@@ -301,7 +301,6 @@ public class ScheduledJobs {
 
         String content = getCSVContent(timePeriod);
 
-        //if exampleLength is 1800 candles * 0.8 (split) = 1440 -> 1440 - 1800 = 360 (360 = exampleLength)
         ForecastJobsDataSetIterator iterator = new ForecastJobsDataSetIterator(content, 1, 28, PriceCategory.ALL);
         List<Pair<INDArray, INDArray>> forecastData = iterator.getTestDataSet();
 
@@ -343,27 +342,6 @@ public class ScheduledJobs {
         return candleList;
     }
 
-    private List<Candle> getExtraOneMinuteCandles(int n) {
-        File filename = new File("data/coinBaseDailyCloseDez2014-Jan2018.csv");
-        List<StockData> stockDataList = new ArrayList<>();
-        try {
-            List<String[]> list = new CSVReader(new FileReader(filename)).readAll();
-            boolean isFileHeader = true;
-            for (String[] arr : list) {
-                if (isFileHeader) {
-                    isFileHeader = false;
-                    continue;
-                }
-                stockDataList.add(new StockData(arr[0], "BTC", Double.valueOf(arr[2]), Double.valueOf(arr[3]), Double.valueOf(arr[4]), Double.valueOf(arr[5]), Double.valueOf(arr[6])));
-            }
-        } catch(IOException e){
-            e.printStackTrace();
-        }
-        List<Candle> candleList = stockDataUtil.tranformStockDataInCandle(stockDataList.subList((stockDataList.size() - n), stockDataList.size()));
-
-        return candleList;
-    }
-
     @NotNull
     private String getCSVContent(TimePeriod timePeriod) {
         File file = new File("data/homePage_update_forecastData_".concat(timePeriod.toString()).concat(".csv"));
@@ -374,3 +352,6 @@ public class ScheduledJobs {
         return file.getPath();
     }
 }
+
+//Example length calculation
+//if exampleLength is 1800 candles then exampleLength=360. (1800 * 0.8 (split) = 1440 -> 1440 - 1800 = 360)

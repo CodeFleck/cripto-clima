@@ -1,28 +1,22 @@
 package br.com.codefleck.criptoclima.services;
 
-import br.com.codefleck.criptoclima.enitities.TimePeriod;
 import br.com.codefleck.criptoclima.enitities.results.ResultSet;
-import org.springframework.data.domain.Page;
 
-import java.awt.print.Pageable;
 import java.util.Optional;
 
 public interface ResultSetService {
 
-    Iterable<ResultSet> listAllResultSets();
-
-    Optional<ResultSet> getResultSetById(Integer id);
-
     ResultSet saveResultSet(ResultSet resultSet);
 
-    void deleteResultSetById(Integer id);
+    Optional<ResultSet> findLatestResultSetWithOneDayPeriod();
 
-    void deleteResultSet(ResultSet resultSet);
+    Optional<ResultSet> findLatestResultSetWithTwoDaysPeriod();
 
-    Optional<ResultSet> findFirstDailyResultSetByOrderByIdDesc();
+    Optional<ResultSet> findLatestResultSetWithThreeDaysPeriod();
 
-    Optional<ResultSet> findLatestWeeklyResultSet();
+    Optional<ResultSet> findLatestResultSetWithFourDaysPeriod();
 
-    Optional<ResultSet> findLatestDailyResultSet();
+    Optional<ResultSet> findLatestResultSetWithFiveDaysPeriod();
 
+    Optional<ResultSet> findLatestResultSetWithSixDaysPeriod();
 }
