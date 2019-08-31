@@ -6,16 +6,17 @@ import java.util.Optional;
 
 public interface ResultSetService {
 
-    Iterable<ResultSet> listAllResultSets();
-
-    Optional<ResultSet> getResultSetById(Integer id);
-
     ResultSet saveResultSet(ResultSet resultSet);
 
-    void deleteResultSetById(Integer id);
+    Optional<ResultSet> findLatestResultSetWithOneDayPeriod();
 
-    void deleteResultSet(ResultSet resultSet);
+    Optional<ResultSet> findLatestResultSetWithTwoDaysPeriod();
 
-    Optional<ResultSet> findFirstByOrderByIdDesc();
+    Optional<ResultSet> findLatestResultSetWithThreeDaysPeriod();
 
+    Optional<ResultSet> findLatestResultSetWithFourDaysPeriod();
+
+    Optional<ResultSet> findLatestResultSetWithFiveDaysPeriod();
+
+    Optional<ResultSet> findLatestResultSetWithSixDaysPeriod();
 }

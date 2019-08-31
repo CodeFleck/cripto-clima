@@ -1,27 +1,30 @@
 package br.com.codefleck.criptoclima.Utils;
 
 import br.com.codefleck.criptoclima.enitities.Candle;
-import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-@Component
 public class TimeSeriesUtil {
+
+    public TimeSeriesUtil() { }
 
     public List<Candle> aggregateTimeSeriesToOneMinute(List<Candle> candleList) {
         List<Candle> aggCandles = new ArrayList<>();
         for (int i = 0; i < candleList.size() ; i++) {
             Candle currentCandle = candleList.get(i);
             double currentOpen = currentCandle.getOpen();
-            double currentHigh = currentCandle.getHigh();
             double currentLow = currentCandle.getLow();
+            double currentHigh = currentCandle.getHigh();
             double currentVolume = currentCandle.getVolume();
 
-            long nextMinute = currentCandle.getTimestamp() + 60000;
+            LocalDateTime tempLocalDateTime = generateLocalDateTime(currentCandle);
+            LocalDateTime nextMinute = tempLocalDateTime.plusMinutes(1);
 
-            while (candleList.size() > i && (candleList.get(i).getTimestamp() < nextMinute)){
+            while (candleList.size() > i && generateLocalDateTime(candleList.get(i)).isBefore(nextMinute)){
                 currentCandle = candleList.get(i); // nextBar
                 currentHigh = Math.max(currentHigh, currentCandle.getHigh());
                 currentLow = Math.min(currentLow, currentCandle.getLow());
@@ -30,33 +33,9 @@ public class TimeSeriesUtil {
             }
             long currentEndTime = currentCandle.getTimestamp();
             double currentClose = currentCandle.getClose();
-            aggCandles.add(new Candle(currentEndTime, currentOpen, currentClose, currentHigh, currentLow, currentVolume));
+            aggCandles.add(new Candle(currentEndTime, currentOpen, currentClose, currentLow, currentHigh, currentVolume));
         }
-        return aggCandles;
-    }
 
-    public List<Candle> aggregateTimeSeriesToOneHour(List<Candle> candleList) {
-        List<Candle> aggCandles = new ArrayList<>();
-        for (int i = 0; i < candleList.size() ; i++) {
-            Candle currentCandle = candleList.get(i);
-            double currentOpen = currentCandle.getOpen();
-            double currentHigh = currentCandle.getHigh();
-            double currentLow = currentCandle.getLow();
-            double currentVolume = currentCandle.getVolume();
-
-            long nextHour = currentCandle.getTimestamp() + 3600000;
-
-            while (candleList.size() > i && (candleList.get(i).getTimestamp() < nextHour)){
-                currentCandle = candleList.get(i); // nextBar
-                currentHigh = Math.max(currentHigh, currentCandle.getHigh());
-                currentLow = Math.min(currentLow, currentCandle.getLow());
-                currentVolume += currentCandle.getVolume();
-                i++;
-            }
-            long currentEndTime = currentCandle.getTimestamp();
-            double currentClose = currentCandle.getClose();
-            aggCandles.add(new Candle(currentEndTime, currentOpen, currentClose, currentHigh, currentLow, currentVolume));
-        }
         return aggCandles;
     }
 
@@ -65,13 +44,14 @@ public class TimeSeriesUtil {
         for (int i = 0; i < candleList.size() ; i++) {
             Candle currentCandle = candleList.get(i);
             double currentOpen = currentCandle.getOpen();
-            double currentHigh = currentCandle.getHigh();
             double currentLow = currentCandle.getLow();
+            double currentHigh = currentCandle.getHigh();
             double currentVolume = currentCandle.getVolume();
 
-            long nextDay = currentCandle.getTimestamp() + (3600000*24);
+            LocalDateTime tempLocalDateTime = generateLocalDateTime(currentCandle);
+            LocalDateTime nexDay = tempLocalDateTime.plusDays(1);
 
-            while (candleList.size() > i && (candleList.get(i).getTimestamp() < nextDay)){
+            while (candleList.size() > i && generateLocalDateTime(candleList.get(i)).isBefore(nexDay)){
                 currentCandle = candleList.get(i); // nextBar
                 currentHigh = Math.max(currentHigh, currentCandle.getHigh());
                 currentLow = Math.min(currentLow, currentCandle.getLow());
@@ -80,8 +60,151 @@ public class TimeSeriesUtil {
             }
             long currentEndTime = currentCandle.getTimestamp();
             double currentClose = currentCandle.getClose();
-            aggCandles.add(new Candle(currentEndTime, currentOpen, currentClose, currentHigh, currentLow, currentVolume));
+            aggCandles.add(new Candle(currentEndTime, currentOpen, currentClose, currentLow, currentHigh, currentVolume));
         }
+
         return aggCandles;
+    }
+
+    public List<Candle> aggregateTimeSeriesToTwoDays(List<Candle> candleList) {
+        List<Candle> aggCandles = new ArrayList<>();
+        for (int i = 0; i < candleList.size() ; i++) {
+            Candle currentCandle = candleList.get(i);
+            double currentOpen = currentCandle.getOpen();
+            double currentLow = currentCandle.getLow();
+            double currentHigh = currentCandle.getHigh();
+            double currentVolume = currentCandle.getVolume();
+
+            LocalDateTime tempLocalDateTime = generateLocalDateTime(currentCandle);
+            LocalDateTime nexTwoDays = tempLocalDateTime.plusDays(2);
+
+            while (candleList.size() > i && generateLocalDateTime(candleList.get(i)).isBefore(nexTwoDays)){
+                currentCandle = candleList.get(i); // nextBar
+                currentHigh = Math.max(currentHigh, currentCandle.getHigh());
+                currentLow = Math.min(currentLow, currentCandle.getLow());
+                currentVolume += currentCandle.getVolume();
+                i++;
+            }
+            long currentEndTime = currentCandle.getTimestamp();
+            double currentClose = currentCandle.getClose();
+            aggCandles.add(new Candle(currentEndTime, currentOpen, currentClose, currentLow, currentHigh, currentVolume));
+        }
+
+        return aggCandles;
+    }
+
+    public List<Candle> aggregateTimeSeriesToThreeDays(List<Candle> candleList) {
+        List<Candle> aggCandles = new ArrayList<>();
+        for (int i = 0; i < candleList.size() ; i++) {
+            Candle currentCandle = candleList.get(i);
+            double currentOpen = currentCandle.getOpen();
+            double currentLow = currentCandle.getLow();
+            double currentHigh = currentCandle.getHigh();
+            double currentVolume = currentCandle.getVolume();
+
+            LocalDateTime tempLocalDateTime = generateLocalDateTime(currentCandle);
+            LocalDateTime nexTwoDays = tempLocalDateTime.plusDays(3);
+
+            while (candleList.size() > i && generateLocalDateTime(candleList.get(i)).isBefore(nexTwoDays)){
+                currentCandle = candleList.get(i); // nextBar
+                currentHigh = Math.max(currentHigh, currentCandle.getHigh());
+                currentLow = Math.min(currentLow, currentCandle.getLow());
+                currentVolume += currentCandle.getVolume();
+                i++;
+            }
+            long currentEndTime = currentCandle.getTimestamp();
+            double currentClose = currentCandle.getClose();
+            aggCandles.add(new Candle(currentEndTime, currentOpen, currentClose, currentLow, currentHigh, currentVolume));
+        }
+
+        return aggCandles;
+    }
+
+    public List<Candle> aggregateTimeSeriesToFourDays(List<Candle> candleList) {
+        List<Candle> aggCandles = new ArrayList<>();
+        for (int i = 0; i < candleList.size() ; i++) {
+            Candle currentCandle = candleList.get(i);
+            double currentOpen = currentCandle.getOpen();
+            double currentLow = currentCandle.getLow();
+            double currentHigh = currentCandle.getHigh();
+            double currentVolume = currentCandle.getVolume();
+
+            LocalDateTime tempLocalDateTime = generateLocalDateTime(currentCandle);
+            LocalDateTime nexTwoDays = tempLocalDateTime.plusDays(4);
+
+            while (candleList.size() > i && generateLocalDateTime(candleList.get(i)).isBefore(nexTwoDays)){
+                currentCandle = candleList.get(i); // nextBar
+                currentHigh = Math.max(currentHigh, currentCandle.getHigh());
+                currentLow = Math.min(currentLow, currentCandle.getLow());
+                currentVolume += currentCandle.getVolume();
+                i++;
+            }
+            long currentEndTime = currentCandle.getTimestamp();
+            double currentClose = currentCandle.getClose();
+            aggCandles.add(new Candle(currentEndTime, currentOpen, currentClose, currentLow, currentHigh, currentVolume));
+        }
+
+        return aggCandles;
+    }
+
+    public List<Candle> aggregateTimeSeriesToFiveDays(List<Candle> candleList) {
+        List<Candle> aggCandles = new ArrayList<>();
+        for (int i = 0; i < candleList.size() ; i++) {
+            Candle currentCandle = candleList.get(i);
+            double currentOpen = currentCandle.getOpen();
+            double currentLow = currentCandle.getLow();
+            double currentHigh = currentCandle.getHigh();
+            double currentVolume = currentCandle.getVolume();
+
+            LocalDateTime tempLocalDateTime = generateLocalDateTime(currentCandle);
+            LocalDateTime nexTwoDays = tempLocalDateTime.plusDays(5);
+
+            while (candleList.size() > i && generateLocalDateTime(candleList.get(i)).isBefore(nexTwoDays)){
+                currentCandle = candleList.get(i); // nextBar
+                currentHigh = Math.max(currentHigh, currentCandle.getHigh());
+                currentLow = Math.min(currentLow, currentCandle.getLow());
+                currentVolume += currentCandle.getVolume();
+                i++;
+            }
+            long currentEndTime = currentCandle.getTimestamp();
+            double currentClose = currentCandle.getClose();
+            aggCandles.add(new Candle(currentEndTime, currentOpen, currentClose, currentLow, currentHigh, currentVolume));
+        }
+
+        return aggCandles;
+    }
+
+    public List<Candle> aggregateTimeSeriesToSixDays(List<Candle> candleList) {
+        List<Candle> aggCandles = new ArrayList<>();
+        for (int i = 0; i < candleList.size() ; i++) {
+            Candle currentCandle = candleList.get(i);
+            double currentOpen = currentCandle.getOpen();
+            double currentLow = currentCandle.getLow();
+            double currentHigh = currentCandle.getHigh();
+            double currentVolume = currentCandle.getVolume();
+
+            LocalDateTime tempLocalDateTime = generateLocalDateTime(currentCandle);
+            LocalDateTime nexTwoDays = tempLocalDateTime.plusDays(6);
+
+            while (candleList.size() > i && generateLocalDateTime(candleList.get(i)).isBefore(nexTwoDays)){
+                currentCandle = candleList.get(i); // nextBar
+                currentHigh = Math.max(currentHigh, currentCandle.getHigh());
+                currentLow = Math.min(currentLow, currentCandle.getLow());
+                currentVolume += currentCandle.getVolume();
+                i++;
+            }
+            long currentEndTime = currentCandle.getTimestamp();
+            double currentClose = currentCandle.getClose();
+            aggCandles.add(new Candle(currentEndTime, currentOpen, currentClose, currentLow, currentHigh, currentVolume));
+        }
+
+        return aggCandles;
+    }
+
+    private LocalDateTime generateLocalDateTime(Candle currentCandle) {
+        Timestamp ts = new Timestamp(currentCandle.getTimestamp());
+        return ts.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
     }
 }
