@@ -14,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -185,7 +186,8 @@ public class IndexController {
         }
 
         //updating the calendar days of the week
-        LocalDate localDate = LocalDate.now();
+        LocalDate localDate = LocalDate.now(ZoneId.of("America/Sao_Paulo"));
+
         model.addAttribute("dayAndMonth", translator.translateMonth(localDate));
         model.addAttribute("weekDayToday", translator.translateDayOfWeek(String.valueOf(localDate.getDayOfWeek()).toLowerCase()));
         model.addAttribute("weekDay1", translator.translateDayOfWeek(String.valueOf(localDate.plusDays(1).getDayOfWeek()).toLowerCase()));
