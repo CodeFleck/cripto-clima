@@ -1,7 +1,6 @@
 package br.com.codefleck.criptoclima.controllers;
 
 import br.com.codefleck.criptoclima.enitities.Candle;
-import br.com.codefleck.criptoclima.repositories.CandleRepository;
 import br.com.codefleck.criptoclima.services.CandleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
