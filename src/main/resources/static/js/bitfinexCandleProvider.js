@@ -15,13 +15,12 @@
             var channelId = response[0];
             responseTicker(response);
 
-        } else {
-            console.log(response);
         }
     };
 
     function responseTicker(data) {
 
+        var undefined = data[1][0];
         var DATE = data[1][0];
         var OPEN = data[1][1];
         var CLOSE = data[1][2];
