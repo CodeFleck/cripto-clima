@@ -1123,9 +1123,8 @@ form textarea {
 .site-header .branding .logo {
     margin-right: 10px; }
 .site-header .branding .site-title {
-    margin-bottom: 5px;
-    font-size: 16px;
-    font-size: 1.1428571429em;
+    font-size: 26px;
+    /*font-size: 1.1428571429em;*/
     color: white; }
 .site-header .branding .site-description {
     font-size: 10px;
@@ -1246,7 +1245,7 @@ form textarea {
         width: 16.6667%;
         float: left; } }
 .forecast-container .forecast.today {
-    width: 300px; }
+    width: 340px; }
 .forecast-container .forecast.today .forecast-header {
     *zoom: 1; }
 .forecast-container .forecast.today .forecast-header:after {
@@ -1271,9 +1270,9 @@ form textarea {
     display: inline-block;
     vertical-align: middle; }
 .forecast-container .forecast.today .degree .num {
-    font-size: 90px;
-    font-size: 6.4285714286rem;
-    margin-right: 30px; }
+    font-size: 40px;
+    margin: 20px 20px 20px 0;
+}
 .forecast-container .forecast.today span {
     margin-right: 20px;
 }
