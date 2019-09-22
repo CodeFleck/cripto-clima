@@ -1,10 +1,11 @@
 ;(function () {
 
-    Bitfinex.onopen = function() {
-        Bitfinex.send(JSON.stringify({"event":"subscribe", "channel":"candles", "key":"trade:1m:tBTCUSD"}));
+    Bitfinex2.onopen = function() {
+        console.log("Collecting candles...");
+        Bitfinex2.send(JSON.stringify({"event":"subscribe", "channel":"candles", "key":"trade:1m:tBTCUSD"}));
     };
 
-    Bitfinex.onmessage = function(msg) {
+    Bitfinex2.onmessage = function(msg) {
 
         var response = JSON.parse(msg.data);
 
@@ -14,21 +15,18 @@
             var channelId = response[0];
             responseTicker(response);
 
-        } else {
-            console.log(response);
         }
     };
 
     function responseTicker(data) {
 
-        var DATE = data[1][0]
+        var undefined = data[1][0];
+        var DATE = data[1][0];
         var OPEN = data[1][1];
         var CLOSE = data[1][2];
         var HIGH = data[1][3];
         var LOW = data[1][4];
         var VOLUME = data[1][5];
-
-        // document.getElementById("btc").innerHTML = CLOSE.toFixed(2);
 
         var candle = {};
         candle.timestamp = DATE;

@@ -46,7 +46,7 @@ public class ScheduledJobs {
     final int PREDICTION_CANDLE_LIST_SIZE = 30;
 
     @Async
-    @Scheduled(cron = "0 0/25 * * * ?",zone = "America/Sao_Paulo") //job executes every 25 min.
+    @Scheduled(cron = "0 0/10 * * * ?",zone = "America/Sao_Paulo") //job executes every 10 min.
     public void updateDailyForecastForHomePageJob() {
         System.out.println("JOB -> executing updateDailyForecasetForhomePageJob...");
 
@@ -91,7 +91,7 @@ public class ScheduledJobs {
     }
 
     @Async
-    @Scheduled(cron = "0 0/26 * * * ?",zone = "America/Sao_Paulo")
+    @Scheduled(cron = "0 0/12 * * * ?",zone = "America/Sao_Paulo")
     public void updateTwoDaysForecastForHomePageJob() {
         System.out.println("JOB -> executing updateTwoDaysForecastForHomePageJob...");
 
@@ -138,7 +138,7 @@ public class ScheduledJobs {
     }
 
     @Async
-    @Scheduled(cron = "0 0/27 * * * ?",zone = "America/Sao_Paulo")
+    @Scheduled(cron = "0 0/14 * * * ?",zone = "America/Sao_Paulo")
     public void updateThreeDaysForecastForHomePageJob() {
         System.out.println("JOB -> executing updateThreeDaysForecastForHomePageJob...");
 
@@ -184,7 +184,7 @@ public class ScheduledJobs {
     }
 
     @Async
-    @Scheduled(cron = "0 0/28 * * * ?",zone = "America/Sao_Paulo")
+    @Scheduled(cron = "0 0/16 * * * ?",zone = "America/Sao_Paulo")
     public void updateFourDaysForecastForHomePageJob() {
         System.out.println("JOB -> executing updateFourDaysForecastForHomePageJob...");
 
@@ -230,7 +230,7 @@ public class ScheduledJobs {
     }
 
     @Async
-    @Scheduled(cron = "0 0/29 * * * ?",zone = "America/Sao_Paulo")
+    @Scheduled(cron = "0 0/18 * * * ?",zone = "America/Sao_Paulo")
     public void updateFiveDaysForecastForHomePageJob() {
         System.out.println("JOB -> executing updateFiveDaysForecastForHomePageJob...");
 
@@ -276,7 +276,7 @@ public class ScheduledJobs {
     }
 
     @Async
-    @Scheduled(cron = "0 0/30 * * * ?",zone = "America/Sao_Paulo")
+    @Scheduled(cron = "0 0/20 * * * ?",zone = "America/Sao_Paulo")
     public void updateSixDaysForecastForHomePageJob() {
         System.out.println("JOB -> executing updateSixDaysForecastForHomePageJob...");
 
