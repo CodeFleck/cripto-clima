@@ -47,8 +47,8 @@ public class ScheduledJobs {
 
     @Async
     @Scheduled(cron = "0 0/10 * * * ?",zone = "America/Sao_Paulo") //job executes every 10 min.
-    public void updateDailyForecastForHomePageJob() {
-        System.out.println("JOB -> executing updateDailyForecasetForhomePageJob...");
+    public void updateDailyForecastJob() {
+        System.out.println("JOB -> executing updateDailyForecasetJob...");
 
         TimePeriod timePeriod = TimePeriod.ONE_DAY;
 
@@ -87,13 +87,13 @@ public class ScheduledJobs {
         INDArray min = Nd4j.create(iterator.getMinArray());
         ResultSet result = forecastService.forecastAllCategories(net, forecastData, max, min, iterator, TimePeriod.ONE_DAY);
 
-        System.out.println("Finished updateDailyForecasetForhomePageJob");
+        System.out.println("Finished updateDailyForecasetJob");
     }
 
     @Async
     @Scheduled(cron = "0 0/12 * * * ?",zone = "America/Sao_Paulo")
-    public void updateTwoDaysForecastForHomePageJob() {
-        System.out.println("JOB -> executing updateTwoDaysForecastForHomePageJob...");
+    public void updateTwoDaysForecastJob() {
+        System.out.println("JOB -> executing updateTwoDaysForecastJob...");
 
         TimePeriod timePeriod = TimePeriod.TWO_DAYS;
 
@@ -134,13 +134,13 @@ public class ScheduledJobs {
         INDArray min = Nd4j.create(iterator.getMinArray());
         ResultSet result = forecastService.forecastAllCategories(net, forecastData, max, min, iterator, TimePeriod.TWO_DAYS);
 
-        System.out.println("Finished updateTwoDaysForecastForHomePageJob");
+        System.out.println("Finished updateTwoDaysForecastJob");
     }
 
     @Async
     @Scheduled(cron = "0 0/14 * * * ?",zone = "America/Sao_Paulo")
-    public void updateThreeDaysForecastForHomePageJob() {
-        System.out.println("JOB -> executing updateThreeDaysForecastForHomePageJob...");
+    public void updateThreeDaysForecastJob() {
+        System.out.println("JOB -> executing updateThreeDaysForecastJob...");
 
         TimePeriod timePeriod = TimePeriod.THREE_DAYS;
 
@@ -180,13 +180,13 @@ public class ScheduledJobs {
         INDArray min = Nd4j.create(iterator.getMinArray());
         ResultSet result = forecastService.forecastAllCategories(net, forecastData, max, min, iterator, TimePeriod.THREE_DAYS);
 
-        System.out.println("Finished updateThreeDaysForecastForHomePageJob");
+        System.out.println("Finished updateThreeDaysForecastJob");
     }
 
     @Async
     @Scheduled(cron = "0 0/16 * * * ?",zone = "America/Sao_Paulo")
-    public void updateFourDaysForecastForHomePageJob() {
-        System.out.println("JOB -> executing updateFourDaysForecastForHomePageJob...");
+    public void updateFourDaysForecastJob() {
+        System.out.println("JOB -> executing updateFourDaysForecastJob...");
 
         TimePeriod timePeriod = TimePeriod.FOUR_DAYS;
 
@@ -226,13 +226,13 @@ public class ScheduledJobs {
         INDArray min = Nd4j.create(iterator.getMinArray());
         ResultSet result = forecastService.forecastAllCategories(net, forecastData, max, min, iterator, TimePeriod.FOUR_DAYS);
 
-        System.out.println("Finished updateFourDaysForecastForHomePageJob");
+        System.out.println("Finished updateFourDaysForecastJob");
     }
 
     @Async
     @Scheduled(cron = "0 0/18 * * * ?",zone = "America/Sao_Paulo")
-    public void updateFiveDaysForecastForHomePageJob() {
-        System.out.println("JOB -> executing updateFiveDaysForecastForHomePageJob...");
+    public void updateFiveDaysForecastJob() {
+        System.out.println("JOB -> executing updateFiveDaysForecastJob...");
 
         TimePeriod timePeriod = TimePeriod.FIVE_DAYS;
 
@@ -272,13 +272,13 @@ public class ScheduledJobs {
         INDArray min = Nd4j.create(iterator.getMinArray());
         ResultSet result = forecastService.forecastAllCategories(net, forecastData, max, min, iterator, TimePeriod.FIVE_DAYS);
 
-        System.out.println("Finished updateFiveDaysForecastForHomePageJob");
+        System.out.println("Finished updateFiveDaysForecastJob");
     }
 
     @Async
     @Scheduled(cron = "0 0/20 * * * ?",zone = "America/Sao_Paulo")
-    public void updateSixDaysForecastForHomePageJob() {
-        System.out.println("JOB -> executing updateSixDaysForecastForHomePageJob...");
+    public void updateSixDaysForecastJob() {
+        System.out.println("JOB -> executing updateSixDaysForecastJob...");
 
         TimePeriod timePeriod = TimePeriod.ONE_WEEK;
 
@@ -318,7 +318,7 @@ public class ScheduledJobs {
         INDArray min = Nd4j.create(iterator.getMinArray());
         ResultSet result = forecastService.forecastAllCategories(net, forecastData, max, min, iterator, TimePeriod.ONE_WEEK);
 
-        System.out.println("Finished updateSixDaysForecastForHomePageJob");
+        System.out.println("Finished updateSixDaysForecastJob");
     }
 
     private List<Candle> getExtraDailyCandles(int n) {
