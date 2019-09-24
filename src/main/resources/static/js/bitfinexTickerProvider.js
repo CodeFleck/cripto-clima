@@ -20,6 +20,8 @@
 
     function responseTicker(data) {
 
+        console.log(" DATA-> " + data);
+
         var undefined = data[1][5];
 
         var LAST_PRICE = data[1][6];
@@ -29,11 +31,26 @@
         const dailyChangeAsString = DAILY_CHANGE_PERC.toString();
         const splitString = dailyChangeAsString.split(".");
         if (dailyChangeAsString.charAt(0) === "-"){
-            const formattedValue = "-" + splitString[1].charAt(1) + "," + splitString[1].slice(2,splitString[1].length) + "%";
-            document.getElementById("dailyChangePercentage").innerHTML = formattedValue;
+            if (splitString[1].charAt(0) != 0){
+                const formattedValue = "-" + splitString[1].charAt(0) + splitString[1].charAt(1) + "," + splitString[1].slice(2,splitString[1].length) + "%";
+                document.getElementById("dailyChangePercentage").innerHTML = formattedValue;
+                window.PercentageToday = formattedValue;
+            } else {
+                const formattedValue = "-" + splitString[1].charAt(1) + "," + splitString[1].slice(2,splitString[1].length) + "%";
+                document.getElementById("dailyChangePercentage").innerHTML = formattedValue;
+                window.PercentageToday = formattedValue;
+            }
+
         } else {
-            const formattedValue = splitString[1].charAt(1) + "," + splitString[1].slice(2,splitString[1].length) + "%";
-            document.getElementById("dailyChangePercentage").innerHTML = formattedValue;
+            if (splitString[1].charAt(0) != 0){
+                const formattedValue = splitString[1].charAt(0) + splitString[1].charAt(1) + "," + splitString[1].slice(2,splitString[1].length) + "%";
+                document.getElementById("dailyChangePercentage").innerHTML = formattedValue;
+                window.PercentageToday = formattedValue;
+            } else {
+                const formattedValue = splitString[1].charAt(1) + "," + splitString[1].slice(2,splitString[1].length) + "%";
+                document.getElementById("dailyChangePercentage").innerHTML = formattedValue;
+                window.PercentageToday = formattedValue;
+            }
         }
 
         var HIGH = data[1][8];
