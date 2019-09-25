@@ -11,10 +11,8 @@
 
         var hb = response[1];
         if(hb != "hb") {
-
             var channelId = response[0];
             responseTicker(response);
-
         }
     };
 
@@ -51,6 +49,5 @@
             }
         }
         xhr.send(myJsonCandle);
-
     }
 })();

@@ -2,10 +2,12 @@ package br.com.codefleck.criptoclima.controllers;
 
 import br.com.codefleck.criptoclima.Utils.TranslatorUtil;
 import br.com.codefleck.criptoclima.enitities.Candle;
+import br.com.codefleck.criptoclima.enitities.LatestPrice;
 import br.com.codefleck.criptoclima.enitities.PriceCategory;
 import br.com.codefleck.criptoclima.enitities.results.Result;
 import br.com.codefleck.criptoclima.enitities.results.ResultSet;
 import br.com.codefleck.criptoclima.services.CandleService;
+import br.com.codefleck.criptoclima.services.LatestPriceService;
 import br.com.codefleck.criptoclima.services.ResultService;
 import br.com.codefleck.criptoclima.services.ResultSetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,8 @@ public class IndexController {
     TranslatorUtil translator;
     @Autowired
     CandleService candleService;
+    @Autowired
+    LatestPriceService latestPriceService;
 
     @RequestMapping("/")
     String index(Model model) {
@@ -43,15 +47,20 @@ public class IndexController {
         Optional<ResultSet> fourDayResultSetResponse = resultSetService.findLatestResultSetWithFourDaysPeriod();
         Optional<ResultSet> fiveDayResultSetResponse = resultSetService.findLatestResultSetWithFiveDaysPeriod();
         Optional<ResultSet> sixDayResultSetResponse = resultSetService.findLatestResultSetWithSixDaysPeriod();
-
-        //updating latest price
-        Optional<Candle> latestCandle = candleService.findLastCandle();
-        if (latestCandle.isPresent()){
-            Candle candle = latestCandle.get();
-            model.addAttribute("latestPrice", round(candle.getClose()));
+        Optional<LatestPrice> latestPriceOptional = latestPriceService.findLastLatestPrice();
+        LatestPrice latestPrice = new LatestPrice();
+        if (latestPriceOptional.isPresent()){
+            latestPrice.setLatestPrice(latestPriceOptional.get().getLatestPrice());
         } else {
-            model.addAttribute("latestPrice", "0");
+            latestPrice.setLatestPrice(0.0);
         }
+
+        double weekDay1Close = 0;
+        double weekDay2Close = 0;
+        double weekDay3Close = 0;
+        double weekDay4Close = 0;
+        double weekDay5Close = 0;
+        double weekDay6Close = 0;
 
         //updating prediction for day 1
         if (oneDayResultSetResponse.isPresent()){
@@ -61,18 +70,16 @@ public class IndexController {
                 List<Result> resultListByDailyResultSet = resultListByResultSetResponse.get();
                 latestDailyResultSet.setResultList(resultListByDailyResultSet);
                 for (Result result : resultListByDailyResultSet) {
-                    if (result.getPriceCategory() == PriceCategory.HIGH){
-                        double weekDay1High = round(result.getPrediction());
-                        model.addAttribute("weekDay1High", weekDay1High);
-                    } else if (result.getPriceCategory() == PriceCategory.LOW){
-                        double weekDay1Low = round(result.getPrediction());
-                        model.addAttribute("weekDay1Low", weekDay1Low);
+                    if (result.getPriceCategory() == PriceCategory.CLOSE){
+                        weekDay1Close = round(result.getPrediction());
+                        model.addAttribute("weekDay1Close", weekDay1Close);
+                        model.addAttribute("weekDay1ChangePerc", round(latestPriceService.calculateDailyChangePercentage(latestPrice.getLatestPrice(), weekDay1Close))+"%");
                     }
                 }
             }
         } else {
-            model.addAttribute("weekDay1High", "0");
-            model.addAttribute("weekDay1Low", "0");
+            model.addAttribute("weekDay1Close", "0");
+            model.addAttribute("weekDay1ChangePerc", "0");
         }
 
         //updating prediction for day 2
@@ -83,18 +90,16 @@ public class IndexController {
                 List<Result> resultListForTwoDaysResultSet = resultListByResultSetResponse.get();
                 latestTwoDaysResultSet.setResultList(resultListForTwoDaysResultSet);
                 for (Result result : resultListForTwoDaysResultSet) {
-                    if (result.getPriceCategory() == PriceCategory.HIGH){
-                        double weekDay2High = round(result.getPrediction());
-                        model.addAttribute("weekDay2High", weekDay2High);
-                    } else if (result.getPriceCategory() == PriceCategory.LOW){
-                        double weekDay2Low = round(result.getPrediction());
-                        model.addAttribute("weekDay2Low", weekDay2Low);
+                    if (result.getPriceCategory() == PriceCategory.CLOSE){
+                        weekDay2Close = round(result.getPrediction());
+                        model.addAttribute("weekDay2Close", weekDay2Close);
+                        model.addAttribute("weekDay2ChangePerc", round(latestPriceService.calculateDailyChangePercentage(weekDay1Close, weekDay2Close))+"%");
                     }
                 }
             }
         } else {
-            model.addAttribute("weekDay2High", "0");
-            model.addAttribute("weekDay2Low", "0");
+            model.addAttribute("weekDay2Close", "0");
+            model.addAttribute("weekDay2ChangePerc", "0");
         }
 
         //updating prediction for day 3
@@ -106,17 +111,15 @@ public class IndexController {
                 latestThreeDaysResultSet.setResultList(resultListForThreeDaysResultSet);
                 for (Result result : resultListForThreeDaysResultSet) {
                     if (result.getPriceCategory() == PriceCategory.HIGH){
-                        double weekDay3High = round(result.getPrediction());
-                        model.addAttribute("weekDay3High", weekDay3High);
-                    } else if (result.getPriceCategory() == PriceCategory.LOW){
-                        double weekDay3Low = round(result.getPrediction());
-                        model.addAttribute("weekDay3Low", weekDay3Low);
+                        weekDay3Close = round(result.getPrediction());
+                        model.addAttribute("weekDay3Close", weekDay3Close);
+                        model.addAttribute("weekDay3ChangePerc", round(latestPriceService.calculateDailyChangePercentage(weekDay2Close, weekDay3Close))+"%");
                     }
                 }
             }
         } else {
-            model.addAttribute("weekDay3High", "0");
-            model.addAttribute("weekDay3Low", "0");
+            model.addAttribute("weekDay3Close", "0");
+            model.addAttribute("weekDay3ChangePerc", "0");
         }
 
         //updating prediction for day 4
@@ -128,17 +131,15 @@ public class IndexController {
                 latestFourDaysResultSet.setResultList(resultListForFourDaysResultSet);
                 for (Result result : resultListForFourDaysResultSet) {
                     if (result.getPriceCategory() == PriceCategory.HIGH){
-                        double weekDay4High = round(result.getPrediction());
-                        model.addAttribute("weekDay4High", weekDay4High);
-                    } else if (result.getPriceCategory() == PriceCategory.LOW){
-                        double weekDay4Low = round(result.getPrediction());
-                        model.addAttribute("weekDay4Low", weekDay4Low);
+                        weekDay4Close = round(result.getPrediction());
+                        model.addAttribute("weekDay4Close", weekDay4Close);
+                        model.addAttribute("weekDay4ChangePerc", round(latestPriceService.calculateDailyChangePercentage(weekDay3Close, weekDay4Close))+"%");
                     }
                 }
             }
         } else {
-            model.addAttribute("weekDay4High", "0");
-            model.addAttribute("weekDay4Low", "0");
+            model.addAttribute("weekDay4Close", "0");
+            model.addAttribute("weekDay4ChangePerc", "0");
         }
 
         //updating prediction for day 5
@@ -150,17 +151,15 @@ public class IndexController {
                 latestFiveDaysResultSet.setResultList(resultListForFiveDaysResultSet);
                 for (Result result : resultListForFiveDaysResultSet) {
                     if (result.getPriceCategory() == PriceCategory.HIGH){
-                        double weekDay5High = round(result.getPrediction());
-                        model.addAttribute("weekDay5High", weekDay5High);
-                    } else if (result.getPriceCategory() == PriceCategory.LOW){
-                        double weekDay5Low = round(result.getPrediction());
-                        model.addAttribute("weekDay5Low", weekDay5Low);
+                        weekDay5Close = round(result.getPrediction());
+                        model.addAttribute("weekDay5Close", weekDay5Close);
+                        model.addAttribute("weekDay5ChangePerc", round(latestPriceService.calculateDailyChangePercentage(weekDay4Close, weekDay5Close))+"%");
                     }
                 }
             }
         } else {
-            model.addAttribute("weekDay5High", "0");
-            model.addAttribute("weekDay5Low", "0");
+            model.addAttribute("weekDay5Close", "0");
+            model.addAttribute("weekDay5ChangePerc", "0");
         }
 
         //updating prediction for day 6
@@ -172,17 +171,15 @@ public class IndexController {
                 latestSixDaysResultSet.setResultList(resultListForSixDaysResultSet);
                 for (Result result : resultListForSixDaysResultSet) {
                     if (result.getPriceCategory() == PriceCategory.HIGH){
-                        double weekDay6High = round(result.getPrediction());
-                        model.addAttribute("weekDay6High", weekDay6High);
-                    } else if (result.getPriceCategory() == PriceCategory.LOW){
-                        double weekDay6Low = round(result.getPrediction());
-                        model.addAttribute("weekDay6Low", weekDay6Low);
+                        weekDay6Close = round(result.getPrediction());
+                        model.addAttribute("weekDay6Close", weekDay6Close);
+                        model.addAttribute("weekDay6ChangePerc", round(latestPriceService.calculateDailyChangePercentage(weekDay5Close, weekDay6Close))+"%");
                     }
                 }
             }
         } else {
-            model.addAttribute("weekDay6High", "0");
-            model.addAttribute("weekDay6Low", "0");
+            model.addAttribute("weekDay6Close", "0");
+            model.addAttribute("weekDay6ChangePerc", "0");
         }
 
         //updating the calendar days of the week

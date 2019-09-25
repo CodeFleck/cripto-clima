@@ -7,7 +7,11 @@ import br.com.codefleck.criptoclima.enitities.*;
 import br.com.codefleck.criptoclima.enitities.results.ResultSet;
 import br.com.codefleck.criptoclima.services.CandleService;
 import br.com.codefleck.criptoclima.services.ForecastServiceImpl;
+import br.com.codefleck.criptoclima.services.LatestPriceService;
 import br.com.codefleck.criptoclima.services.NeuralNetTrainingService;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.opencsv.CSVReader;
 import javafx.util.Pair;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -20,9 +24,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +44,8 @@ public class ScheduledJobs {
     CandleService candleService;
     @Autowired
     CsvFileWriterUtil csvFileWriterUtil;
+    @Autowired
+    LatestPriceService latestPriceService;
 
     private TimeSeriesUtil timeSeriesUtil = new TimeSeriesUtil();
     private StockDataUtil stockDataUtil = new StockDataUtil();
@@ -319,6 +326,48 @@ public class ScheduledJobs {
         ResultSet result = forecastService.forecastAllCategories(net, forecastData, max, min, iterator, TimePeriod.ONE_WEEK);
 
         System.out.println("Finished updateSixDaysForecastJob");
+    }
+
+    @Async
+    @Scheduled(cron = "0 0/1 * * * ?",zone = "America/Sao_Paulo") //job executes every 1 min.
+    public void getLatestBTCPriceJob() {
+
+        URL url = null;
+        try {
+            url = new URL("https://api.bitfinex.com/v1/pubticker/btcusd");
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            con.setConnectTimeout(5000);
+            int status = con.getResponseCode();
+            Reader streamReader = null;
+            if (status > 299) {
+                streamReader = new InputStreamReader(con.getErrorStream());
+            } else {
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(con.getInputStream()));
+                String inputLine;
+                StringBuffer content = new StringBuffer();
+                while ((inputLine = in.readLine()) != null) {
+                    content.append(inputLine);
+                }
+                in.close();
+
+                JsonObject gson = new Gson().fromJson(content.toString(), JsonObject.class);
+                LatestPrice latestPrice = new LatestPrice();
+                latestPrice.setCoin("btc");
+                JsonElement timeStamp = gson.get("timestamp");
+                JsonElement latest_Price = gson.get("last_price");
+                latestPrice.setTimestamp(timeStamp.toString());
+                latestPrice.setLatestPrice(latest_Price.getAsDouble());
+                latestPriceService.saveLatestPrice(latestPrice);
+            }
+            con.disconnect();
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private List<Candle> getExtraDailyCandles(int n) {

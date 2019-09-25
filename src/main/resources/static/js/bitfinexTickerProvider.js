@@ -11,10 +11,8 @@
 
         var hb = response[1];
         if(hb != "hb") {
-
             var channelId = response[0];
             responseTicker(response);
-
         }
     };
 
@@ -38,7 +36,6 @@
                 document.getElementById("dailyChangePercentage").innerHTML = formattedValue;
                 updateImages(formattedValue);
             }
-
         } else {
             if (splitString[1].charAt(0) != 0){
                 const formattedValue = splitString[1].charAt(0) + splitString[1].charAt(1) + "," + splitString[1].slice(2,splitString[1].length) + "%";
@@ -52,13 +49,12 @@
                 updateImages(formattedValue);
             }
         }
-        // var HIGH = data[1][8];
-        // var LOW = data[1][9];
     }
 
     function updateImages(formattedValue) {
 
         var dailyChange = parseFloat(formattedValue.replace(";","."));
+
         var forecastIconToday = document.getElementById("forecastIconToday");
         var imageToday = forecastIconToday.getAttribute("src");
 
@@ -81,5 +77,4 @@
         }
         forecastIconToday.setAttribute("src", imageToday);
     }
-
 })();
