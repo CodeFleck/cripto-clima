@@ -78,6 +78,12 @@ public class StockDataSetIterator implements DataSetIterator {
 
     public double getMinNum (PriceCategory category) { return minArray[featureMapIndex.get(category)]; }
 
+    public List<StockData> getTrain() {return train; }
+
+    public void setTrain(List<StockData> train) { this.train = train; }
+
+    public void setTest(List<Pair<INDArray, INDArray>> test) { this.test = test; }
+
     public DataSet next(int num) {
         if (exampleStartOffsets.size() == 0) throw new NoSuchElementException();
         int actualMiniBatchSize = Math.min(num, exampleStartOffsets.size());

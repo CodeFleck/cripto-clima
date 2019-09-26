@@ -48,6 +48,8 @@ public class NeuralNetTrainingService {
 
         System.out.println("Creating dataSet iterator...");
         iterator = new StockDataSetIterator(content, symbol, batchSize, exampleLength, splitRatio, category, period);
+        System.out.println("Train data size: " + iterator.getTrain().size());
+        System.out.println("Test data size: " + iterator.getTestDataSet().size());
         System.out.println("Loading test dataset...");
         List<Pair<INDArray, INDArray>> test = iterator.getTestDataSet();
 
