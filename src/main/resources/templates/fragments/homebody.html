@@ -115,35 +115,11 @@
         <main class="main-content">
             <div class="fullwidth-block">
                 <div class="container">
-                    <h2 class="section-title">Anuncie aqui</h2>
-                    <div class="row">
-                        <div class="col-md-3 col-sm-6">
-                            <div class="live-camera">
-                                <figure class="live-camera-cover"><img src="images/live-camera-1.jpg" alt=""></figure>
-                                <h3 class="location">CodeFleck Sistemas</h3>
-                                <small class="date">Sistemas inteligentes</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <div class="live-camera">
-                                <figure class="live-camera-cover"><img src="images/live-camera-2.jpg" alt=""></figure>
-                                <h3 class="location">Sua empresa</h3>
-                                <small class="date">Seu slogan</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <div class="live-camera">
-                                <figure class="live-camera-cover"><img src="images/live-camera-3.jpg" alt=""></figure>
-                                <h3 class="location">Sua empresa</h3>
-                                <small class="date">Seu slogan</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <div class="live-camera">
-                                <figure class="live-camera-cover"><img src="images/live-camera-4.jpg" alt=""></figure>
-                                <h3 class="location">Sua empresa</h3>
-                                <small class="date">Seu slogan</small>
-                            </div>
+                    <div class="fullwidth-block">
+                        <div class="container">
+                            <h2>Noticias</h2>
+                            <div><img th:src="@{https://s2.coinmarketcap.com/static/img/coins/64x64/1.png}"/></div>
+                            <p><span th:utext="${bitcoinNews}"></span></p>
                         </div>
                     </div>
                 </div>
@@ -181,8 +157,8 @@
                                 <small class="date">8 oct, 8:00AM</small>
                             </div>
                         </div>
+                    </div>
                 </div>
-            </div>
         </main>
     </div>
 </div>
