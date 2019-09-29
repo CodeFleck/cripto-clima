@@ -1,20 +1,19 @@
 package br.com.codefleck.criptoclima.controllers;
 
+import br.com.codefleck.criptoclima.Utils.RSSParser;
 import br.com.codefleck.criptoclima.Utils.TranslatorUtil;
-import br.com.codefleck.criptoclima.enitities.Candle;
 import br.com.codefleck.criptoclima.enitities.LatestPrice;
 import br.com.codefleck.criptoclima.enitities.PriceCategory;
 import br.com.codefleck.criptoclima.enitities.results.Result;
 import br.com.codefleck.criptoclima.enitities.results.ResultSet;
-import br.com.codefleck.criptoclima.services.CandleService;
-import br.com.codefleck.criptoclima.services.LatestPriceService;
-import br.com.codefleck.criptoclima.services.ResultService;
-import br.com.codefleck.criptoclima.services.ResultSetService;
+import br.com.codefleck.criptoclima.services.*;
+import com.rometools.rome.io.FeedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
@@ -39,6 +38,17 @@ public class IndexController {
 
     @RequestMapping("/")
     String index(Model model) {
+
+        RSSParser rssParser = new RSSParser();
+        try {
+            String cryptoFeed = rssParser.readRssFeed("https://www.google.com/alerts/feeds/12364797074637630541/18029993629479251356");
+            System.out.println("cryptoFeed FEED ->" + cryptoFeed);
+            model.addAttribute("cryptoNews", cryptoFeed);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (FeedException e) {
+            e.printStackTrace();
+        }
 
         //Grab latest ResultSets from database
         Optional<ResultSet> oneDayResultSetResponse = resultSetService.findLatestResultSetWithOneDayPeriod();
