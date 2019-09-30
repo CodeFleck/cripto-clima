@@ -116,13 +116,15 @@
             <div class="fullwidth-block">
                 <div class="container">
                     <div class="fullwidth-block">
-                        <div class="container">
+                        <div class="container" data-bg-color="#262936" style="background-color: rgb(38, 41, 54);padding-top: 3%;">
                             <div class="row">
                                 <div class="col-sm-12 col-md-12">
-                                    <h2>Noticias</h2><img src="images/news.png" alt="" width=94 height="94">
+                                    <div>
+                                        <h2>Noticias</h2>
+                                    </div><img src="images/news.png" alt="" width=94 height="94" style="float: right;margin-top: -7%;">
                                 </div>
                             </div>
-                            <div style="float:left; margin:0; width:100%;">
+                            <div style="float:left; margin:0; width:100%; ">
                                 <p><span th:utext="${cryptoNews}"></span></p>
                             </div>
                         </div>

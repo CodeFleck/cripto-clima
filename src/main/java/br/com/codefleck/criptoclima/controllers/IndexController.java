@@ -42,7 +42,6 @@ public class IndexController {
         RSSParser rssParser = new RSSParser();
         try {
             String cryptoFeed = rssParser.readRssFeed("https://www.google.com/alerts/feeds/12364797074637630541/18029993629479251356");
-            System.out.println("cryptoFeed FEED ->" + cryptoFeed);
             model.addAttribute("cryptoNews", cryptoFeed);
         } catch (IOException e) {
             e.printStackTrace();
