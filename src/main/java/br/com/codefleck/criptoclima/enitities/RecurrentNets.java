@@ -15,17 +15,18 @@ import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 public class RecurrentNets {
-	private static final int lstmLayer1Size = 128;
-    private static final int lstmLayer2Size = 128;
+	private static final int lstmLayer1Size = 256;
+    private static final int lstmLayer2Size = 256;
     private static final int denseLayerSize = 32;
-    private static final double dropoutRatio = 0.5;
+    private static final double dropoutRatio = 0.2;
     private static final int truncatedBPTTLength = 22;
+    private static final double learningRate = 0.001;
 
     public static MultiLayerNetwork createAndBuildLstmNetworks(int nIn, int nOut) {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-                .seed(123456)
+                .seed(12345)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .updater(new Adam(0.01))
+                .updater(new Adam(learningRate))
                 .l2(1e-4)
                 .weightInit(WeightInit.XAVIER)
                 .activation(Activation.RELU)
@@ -44,29 +45,12 @@ public class RecurrentNets {
                         .gateActivationFunction(Activation.HARDSIGMOID)
                         .dropOut(dropoutRatio)
                         .build())
-                .layer(2, new LSTM.Builder()
-                        .nIn(lstmLayer1Size)
-                        .nOut(lstmLayer2Size)
-                        .activation(Activation.TANH)
-                        .gateActivationFunction(Activation.HARDSIGMOID)
-                        .dropOut(dropoutRatio)
-                        .build())
-                .layer(3, new DenseLayer.Builder()
+                .layer(2, new DenseLayer.Builder()
                 		.nIn(lstmLayer2Size)
                 		.nOut(denseLayerSize)
                 		.activation(Activation.RELU)
                 		.build())
-                .layer(4, new DenseLayer.Builder()
-                		.nIn(denseLayerSize)
-                		.nOut(denseLayerSize)
-                		.activation(Activation.RELU)
-                		.build())
-                .layer(5, new DenseLayer.Builder()
-                		.nIn(denseLayerSize)
-                		.nOut(denseLayerSize)
-                		.activation(Activation.RELU)
-                		.build())
-                .layer(6, new RnnOutputLayer.Builder()
+                .layer(3, new RnnOutputLayer.Builder()
                         .nIn(denseLayerSize)
                         .nOut(nOut)
                         .activation(Activation.IDENTITY)
