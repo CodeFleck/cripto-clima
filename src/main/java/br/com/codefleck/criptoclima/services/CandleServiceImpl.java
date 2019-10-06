@@ -71,6 +71,16 @@ public class CandleServiceImpl implements CandleService {
     }
 
     @Override
+    public List<Candle> findLast24HoursCandles() {
+        Instant instant = Instant.now();
+        instant = instant.minus(1, ChronoUnit.DAYS);
+        long timestampMillisMinus24Hours = (instant.toEpochMilli());
+        List<Candle> oneHourAggregatedList = timeSeriesUtil.aggregateTimeSeriesToOneHour(candleRepository.findByTimestamp(timestampMillisMinus24Hours));
+
+        return oneHourAggregatedList;
+    }
+
+    @Override
     public List<Candle> findLast30DaysCandles() {
         Instant instant = Instant.now();
         instant = instant.minus(30, ChronoUnit.DAYS);

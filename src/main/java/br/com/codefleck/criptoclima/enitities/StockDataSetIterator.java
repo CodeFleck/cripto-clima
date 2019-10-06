@@ -1,7 +1,5 @@
 package br.com.codefleck.criptoclima.enitities;
 
-import br.com.codefleck.criptoclima.Utils.StockDataUtil;
-import br.com.codefleck.criptoclima.Utils.TimeSeriesUtil;
 import com.google.common.collect.ImmutableMap;
 import javafx.util.Pair;
 import org.apache.commons.io.FileUtils;
@@ -18,14 +16,11 @@ import java.util.*;
 
 public class StockDataSetIterator implements DataSetIterator {
 
-    private TimeSeriesUtil timeSeriesUtil = new TimeSeriesUtil();
-    private StockDataUtil stockDataUtil = new StockDataUtil();
-
     /** category and its index */
     private final Map<PriceCategory, Integer> featureMapIndex = ImmutableMap.of(PriceCategory.OPEN, 0, PriceCategory.CLOSE, 1,
             PriceCategory.LOW, 2, PriceCategory.HIGH, 3, PriceCategory.VOLUME, 4);
 
-    private final int VECTOR_SIZE = 5; // number of features for a stock data
+    private final int VECTOR_SIZE = 6; // number of features for a stock data
     private int miniBatchSize; // mini-batch size
     private int exampleLength; // default 22, say, 22 working days per month
     private int predictLength = 24; // default 1, say, one day ahead prediction
@@ -42,16 +37,13 @@ public class StockDataSetIterator implements DataSetIterator {
     private LinkedList<Integer> exampleStartOffsets = new LinkedList<>();
 
     /** stock dataset for training */
-    private List<StockData> train;
+    private List<CustomStockData> train;
 
     /** adjusted stock dataset for testing */
     private List<Pair<INDArray, INDArray>> test;
 
-    private String period;
-
-    public StockDataSetIterator (String filename, String symbol, int miniBatchSize, int exampleLength, double splitRatio, PriceCategory category, String period) {
-        this.period = period;
-        List<StockData> stockDataList = readStockDataFromFile(filename, period);
+    public StockDataSetIterator (String filename, int miniBatchSize, int exampleLength, double splitRatio, PriceCategory category) {
+        List<CustomStockData> stockDataList = readStockDataFromFile(filename);
         this.miniBatchSize = miniBatchSize;
         this.exampleLength = exampleLength;
         this.category = category;
@@ -78,9 +70,9 @@ public class StockDataSetIterator implements DataSetIterator {
 
     public double getMinNum (PriceCategory category) { return minArray[featureMapIndex.get(category)]; }
 
-    public List<StockData> getTrain() {return train; }
+    public List<CustomStockData> getTrain() {return train; }
 
-    public void setTrain(List<StockData> train) { this.train = train; }
+    public void setTrain(List<CustomStockData> train) { this.train = train; }
 
     public void setTest(List<Pair<INDArray, INDArray>> test) { this.test = test; }
 
@@ -98,8 +90,8 @@ public class StockDataSetIterator implements DataSetIterator {
         for (int index = 0; index < actualMiniBatchSize; index++) {
             int startIdx = exampleStartOffsets.removeFirst();
             int endIdx = startIdx + exampleLength;
-            StockData curData = train.get(startIdx);
-            StockData nextData;
+            CustomStockData curData = train.get(startIdx);
+            CustomStockData nextData;
             for (int i = startIdx; i < endIdx; i++) {
                 int c = i - startIdx;
                 input.putScalar(new int[] {index, 0, c}, (curData.getOpen() - minArray[0]) / (maxArray[0] - minArray[0]));
@@ -107,6 +99,7 @@ public class StockDataSetIterator implements DataSetIterator {
                 input.putScalar(new int[] {index, 2, c}, (curData.getLow() - minArray[2]) / (maxArray[2] - minArray[2]));
                 input.putScalar(new int[] {index, 3, c}, (curData.getHigh() - minArray[3]) / (maxArray[3] - minArray[3]));
                 input.putScalar(new int[] {index, 4, c}, (curData.getVolume() - minArray[4]) / (maxArray[4] - minArray[4]));
+                input.putScalar(new int[] {index, 5, c}, (curData.getDailyChangePercentage() - minArray[5]) / (maxArray[5] - minArray[5]));
                 nextData = train.get(i + 1);
                 if (category.equals(PriceCategory.ALL)) {
                     label.putScalar(new int[] {index, 0, c}, (nextData.getOpen() - minArray[1]) / (maxArray[1] - minArray[1]));
@@ -114,6 +107,7 @@ public class StockDataSetIterator implements DataSetIterator {
                     label.putScalar(new int[] {index, 2, c}, (nextData.getLow() - minArray[2]) / (maxArray[2] - minArray[2]));
                     label.putScalar(new int[] {index, 3, c}, (nextData.getHigh() - minArray[3]) / (maxArray[3] - minArray[3]));
                     label.putScalar(new int[] {index, 4, c}, (nextData.getVolume() - minArray[4]) / (maxArray[4] - minArray[4]));
+                    label.putScalar(new int[] {index, 5, c}, (nextData.getDailyChangePercentage() - minArray[5]) / (maxArray[5] - minArray[5]));
                 } else {
                     label.putScalar(new int[]{index, 0, c}, feedLabel(nextData));
                 }
@@ -124,7 +118,7 @@ public class StockDataSetIterator implements DataSetIterator {
         return new DataSet(input, label);
     }
 
-    private double feedLabel(StockData data) {
+    private double feedLabel(CustomStockData data) {
         double value;
         switch (category) {
             case OPEN: value = (data.getOpen() - minArray[0]) / (maxArray[0] - minArray[0]); break;
@@ -132,6 +126,7 @@ public class StockDataSetIterator implements DataSetIterator {
             case LOW: value = (data.getLow() - minArray[2]) / (maxArray[2] - minArray[2]); break;
             case HIGH: value = (data.getHigh() - minArray[3]) / (maxArray[3] - minArray[3]); break;
             case VOLUME: value = (data.getVolume() - minArray[4]) / (maxArray[4] - minArray[4]); break;
+            case DAILY_CHANGE_PERC: value = (data.getDailyChangePercentage() - minArray[5]) / (maxArray[5] - minArray[5]); break;
             default: throw new NoSuchElementException();
         }
         return value;
@@ -170,21 +165,22 @@ public class StockDataSetIterator implements DataSetIterator {
 
     public DataSet next() { return next(miniBatchSize); }
 
-    private List<Pair<INDArray, INDArray>> generateTestDataSet (List<StockData> stockDataList) {
+    private List<Pair<INDArray, INDArray>> generateTestDataSet (List<CustomStockData> stockDataList) {
         System.out.println("generating test dataset...");
         int window = exampleLength + predictLength;
         List<Pair<INDArray, INDArray>> test = new ArrayList<>();
         for (int i = 0; i < stockDataList.size() - window; i++) {
             INDArray input = Nd4j.create(new int[] {exampleLength, VECTOR_SIZE}, 'f');
             for (int j = i; j < i + exampleLength; j++) {
-                StockData stock = stockDataList.get(j);
+                CustomStockData stock = stockDataList.get(j);
                 input.putScalar(new int[] {j - i, 0}, (stock.getOpen() - minArray[0]) / (maxArray[0] - minArray[0]));
                 input.putScalar(new int[] {j - i, 1}, (stock.getClose() - minArray[1]) / (maxArray[1] - minArray[1]));
                 input.putScalar(new int[] {j - i, 2}, (stock.getLow() - minArray[2]) / (maxArray[2] - minArray[2]));
                 input.putScalar(new int[] {j - i, 3}, (stock.getHigh() - minArray[3]) / (maxArray[3] - minArray[3]));
                 input.putScalar(new int[] {j - i, 4}, (stock.getVolume() - minArray[4]) / (maxArray[4] - minArray[4]));
+                input.putScalar(new int[] {j - i, 4}, (stock.getDailyChangePercentage() - minArray[5]) / (maxArray[5] - minArray[5]));
             }
-            StockData stock = stockDataList.get(i + exampleLength);
+            CustomStockData stock = stockDataList.get(i + exampleLength);
             INDArray label;
             if (category.equals(PriceCategory.ALL)) {
                 label = Nd4j.create(new int[]{VECTOR_SIZE}, 'f'); // ordering is set as 'f', faster construct
@@ -193,6 +189,7 @@ public class StockDataSetIterator implements DataSetIterator {
                 label.putScalar(new int[] {2}, stock.getLow());
                 label.putScalar(new int[] {3}, stock.getHigh());
                 label.putScalar(new int[] {4}, stock.getVolume());
+                label.putScalar(new int[] {5}, stock.getDailyChangePercentage());
             } else {
                 label = Nd4j.create(new int[] {1}, 'f');
                 switch (category) {
@@ -201,6 +198,7 @@ public class StockDataSetIterator implements DataSetIterator {
                     case LOW: label.putScalar(new int[] {0}, stock.getLow()); break;
                     case HIGH: label.putScalar(new int[] {0}, stock.getHigh()); break;
                     case VOLUME: label.putScalar(new int[] {0}, stock.getVolume()); break;
+                    case DAILY_CHANGE_PERC: label.putScalar(new int[] {0}, stock.getDailyChangePercentage()); break;
                     default: throw new NoSuchElementException();
                 }
             }
@@ -210,125 +208,44 @@ public class StockDataSetIterator implements DataSetIterator {
     }
 
     @SuppressWarnings("resource")
-    public List<StockData> readStockDataFromFile (String filename, String period) {
+    public List<CustomStockData> readStockDataFromFile (String filename) {
         System.out.println("Reading stock data from file...");
-        List<StockData> stockDataList = new ArrayList<>();
+        List<CustomStockData> stockDataList = new ArrayList<>();
+        try {
+            for (int i = 0; i < maxArray.length; i++) {
+                maxArray[i] = Float.MIN_VALUE;
+                minArray[i] = Float.MAX_VALUE;
+            }
+            LineIterator it = FileUtils.lineIterator(new File(filename), "UTF-8");
+            List<String[]> list = new ArrayList<>();
+            boolean isFileHeader = true;
             try {
-                for (int i = 0; i < maxArray.length; i++) {
-                    maxArray[i] = Float.MIN_VALUE;
-                    minArray[i] = Float.MAX_VALUE;
-                }
-                LineIterator it = FileUtils.lineIterator(new File(filename), "UTF-8");
-                List<String[]> list = new ArrayList<>();
-                boolean isFileHeader = true;
-                try {
-                    while (it.hasNext()) {
-                        String line = it.nextLine();
-                        if (isFileHeader) {
-                            isFileHeader = false;
-                            continue;
-                        }
-                        String[] splitted = line.split(",");
-                        list.add(splitted);
+                while (it.hasNext()) {
+                    String line = it.nextLine();
+                    if (isFileHeader) {
+                        isFileHeader = false;
+                        continue;
                     }
-                } finally {
-                    LineIterator.closeQuietly(it);
+                    String[] splitted = line.split(",");
+                    list.add(splitted);
                 }
-                for (String[] arr : list) {
-                    float[] nums = new float[VECTOR_SIZE];
-                    for (int i = 0; i < arr.length - 2; i++) {
-                        nums[i] = Float.valueOf(arr[i + 2]);
-                        if (nums[i] > maxArray[i]) maxArray[i] = nums[i];
-                        if (nums[i] < minArray[i]) minArray[i] = nums[i];
-                    }
-                    StockData stockData = new StockData(arr[0], arr[1], nums[0], nums[1], nums[2], nums[3], nums[4]);
-                    stockDataList.add(stockData);
+            } finally {
+                LineIterator.closeQuietly(it);
+            }
+            for (String[] arr : list) {
+                float[] nums = new float[VECTOR_SIZE];
+                for (int i = 0; i < arr.length - 2; i++) {
+                    nums[i] = Float.valueOf(arr[i + 2]);
+                    if (nums[i] > maxArray[i]) maxArray[i] = nums[i];
+                    if (nums[i] < minArray[i]) minArray[i] = nums[i];
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+                CustomStockData stockData = new CustomStockData(arr[0], arr[1], nums[0], nums[1], nums[2], nums[3], nums[4], Double.valueOf(arr[7]));
+                stockDataList.add(stockData);
             }
-            Collections.reverse(stockDataList);
-        if (period.equals("daily")){
-
-            return stockDataList.subList(0,1800);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        if (period.equals("twoDays")){
-            System.out.println("Aggregating StockData into two day candles...");
-            List<Candle> candleList = stockDataUtil.tranformStockDataInCandle(stockDataList);
-            List<Candle> aggCandles = timeSeriesUtil.aggregateTimeSeriesToTwoDays(candleList);
-            List<StockData> aggStockData = stockDataUtil.tranformCandleInStockData(aggCandles);
-            if (aggStockData.size() < 1800){
-                int i = 0;
-                do {
-                    aggStockData.add(aggStockData.get(i));
-                    i++;
-                } while (aggStockData.size() < 1800);
-            }
-
-            return aggStockData.subList(0, 1800);
-        }
-        if (period.equals("threeDays")){
-            System.out.println("Aggregating StockData into three day candles...");
-            List<Candle> candleList = stockDataUtil.tranformStockDataInCandle(stockDataList);
-            List<Candle> aggCandles = timeSeriesUtil.aggregateTimeSeriesToThreeDays(candleList);
-            List<StockData> aggStockData = stockDataUtil.tranformCandleInStockData(aggCandles);
-            if (aggStockData.size() < 1800){
-                int i = 0;
-                do {
-                    aggStockData.add(aggStockData.get(i));
-                    i++;
-                } while (aggStockData.size() < 1800);
-            }
-
-            return aggStockData.subList(0, 1800);
-        }
-        if (period.equals("fourDays")){
-            System.out.println("Aggregating StockData into four day candles...");
-            List<Candle> candleList = stockDataUtil.tranformStockDataInCandle(stockDataList);
-            List<Candle> aggCandles = timeSeriesUtil.aggregateTimeSeriesToFourDays(candleList);
-            List<StockData> aggStockData = stockDataUtil.tranformCandleInStockData(aggCandles);
-            if (aggStockData.size() < 1800){
-                int i = 0;
-                do {
-                    aggStockData.add(aggStockData.get(i));
-                    i++;
-                } while (aggStockData.size() < 1800);
-            }
-
-            return aggStockData.subList(0, 1800);
-        }
-        if (period.equals("fiveDays")){
-            System.out.println("Aggregating StockData into five day candles...");
-            List<Candle> candleList = stockDataUtil.tranformStockDataInCandle(stockDataList);
-            List<Candle> aggCandles = timeSeriesUtil.aggregateTimeSeriesToFiveDays(candleList);
-            List<StockData> aggStockData = stockDataUtil.tranformCandleInStockData(aggCandles);
-            if (aggStockData.size() < 1800){
-                int i = 0;
-                do {
-                    aggStockData.add(aggStockData.get(i));
-                    i++;
-                } while (aggStockData.size() < 1800);
-            }
-
-            return aggStockData.subList(0, 1800);
-        }
-        if (period.equals("weekly")){
-            System.out.println("Aggregating StockData to one week...");
-            List<Candle> candleList = stockDataUtil.tranformStockDataInCandle(stockDataList);
-            List<Candle> aggCandles = timeSeriesUtil.aggregateTimeSeriesToSixDays(candleList);
-            List<StockData> aggStockData = stockDataUtil.tranformCandleInStockData(aggCandles);
-            if (aggStockData.size() < 1800){
-                int i = 0;
-                do {
-                    aggStockData.add(aggStockData.get(i));
-                    i++;
-                } while (aggStockData.size() < 1800);
-            }
-
-            return aggStockData.subList(0, 1800);
-        }
-        System.out.println("Something went wrong while trying to read stockData from csv file.");
-
-        return null;
+        Collections.reverse(stockDataList);
+        return stockDataList;
     }
 }
