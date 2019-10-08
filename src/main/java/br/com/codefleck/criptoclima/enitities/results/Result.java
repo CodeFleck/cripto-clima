@@ -14,21 +14,24 @@ public class Result {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
+    @Enumerated(EnumType.STRING)
     private PriceCategory priceCategory;
     private double prediction;
     private double actual;
     private TimePeriod TimePeriod;
     private int resultSetID;
+    private int resultsForWeekDay;
 
     public Result() {
     }
 
-    public Result(PriceCategory priceCategory, double prediction, double actual, TimePeriod timePeriod, int resultSetID) {
+    public Result(PriceCategory priceCategory, double prediction, double actual, TimePeriod timePeriod, int resultSetID, int resultsForWeekDay) {
         this.priceCategory = priceCategory;
         this.prediction = prediction;
         this.actual = actual;
         TimePeriod = timePeriod;
         this.resultSetID = resultSetID;
+        this.resultsForWeekDay = resultsForWeekDay;
     }
 
     public Integer getId() {
@@ -79,6 +82,14 @@ public class Result {
         this.resultSetID = resultSetID;
     }
 
+    public int getResultsForWeekDay() {
+        return resultsForWeekDay;
+    }
+
+    public void setResultsForWeekDay(int resultsForWeekDay) {
+        this.resultsForWeekDay = resultsForWeekDay;
+    }
+
     @Override
     public String toString() {
         return "Result{" +
@@ -86,8 +97,9 @@ public class Result {
                 ", priceCategory=" + priceCategory +
                 ", prediction=" + prediction +
                 ", actual=" + actual +
-                ", TimePeriod='" + TimePeriod + '\'' +
-                ", resultSet=" + resultSetID +
+                ", TimePeriod=" + TimePeriod +
+                ", resultSetID=" + resultSetID +
+                ", resultsForWeekDay=" + resultsForWeekDay +
                 '}';
     }
 }
