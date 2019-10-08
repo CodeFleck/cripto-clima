@@ -39,7 +39,7 @@ public class NeuralNetTrainingService {
     private static int exampleLength = 312;
     private static StockDataSetIterator iterator;
 
-    public void trainNeuralNet(String symbol, int epochs, String selectedCategory, String period) {
+    public void trainNeuralNet(int epochs, String selectedCategory) {
 
         int batchSize = 32; // mini-batch size
         double splitRatio = 0.8; // 80% for training, 20% for testing
@@ -47,9 +47,12 @@ public class NeuralNetTrainingService {
         String content = getCSVContent();
 
         System.out.println("Creating dataSet iterator...");
-        iterator = new StockDataSetIterator(content, symbol, batchSize, exampleLength, splitRatio, category, period);
+        iterator = new StockDataSetIterator(content, batchSize, exampleLength, splitRatio, category);
+
+        //checking sizes to avoid neural net parameter mistakes
         System.out.println("Train data size: " + iterator.getTrain().size());
         System.out.println("Test data size: " + iterator.getTestDataSet().size());
+
         System.out.println("Loading test dataset...");
         List<Pair<INDArray, INDArray>> test = iterator.getTestDataSet();
 
@@ -77,7 +80,6 @@ public class NeuralNetTrainingService {
         System.out.println("Saving model...");
         File locationToSave = new File("models/StockPriceLSTM_"
                 .concat("_").concat(String.valueOf(category))
-                .concat("_").concat(period.toUpperCase())
                 .concat(".zip"));
 
         // saveUpdater: i.e., the state for Momentum, RMSProp, Adagrad etc. Save this to train your network more in the future
@@ -110,7 +112,7 @@ public class NeuralNetTrainingService {
         ResultSet resultSet = resultSetService.saveResultSet(new ResultSet());
         Instant instant = Instant.now();
         resultSet.setTimestamp(instant.toEpochMilli());
-        resultSet.setPeriod(getTimePeriod(period));
+        resultSet.setPeriod(TimePeriod.ONE_DAY);
 
         System.out.println("Evaluating...");
         if (category.equals(PriceCategory.ALL)) {
@@ -123,14 +125,6 @@ public class NeuralNetTrainingService {
             predictPriceOneAhead(net, test, max, min, category);
         }
         System.out.println("Done...");
-    }
-
-    private TimePeriod getTimePeriod(String period) {
-        switch (period){
-            case "daily": return TimePeriod.ONE_DAY;
-            case "weekly": return TimePeriod.ONE_WEEK;
-        }
-        return  TimePeriod.ONE_DAY;
     }
 
     private PriceCategory getSelectedCategory(String category) {
@@ -147,7 +141,7 @@ public class NeuralNetTrainingService {
 
     @NotNull
     private String getCSVContent() {
-        File file = new File("data/Kraken_BTCUSD_d.csv");
+        File file = new File("data/Kraken_BTCUSD_d_WithDailyChange.csv");
         System.out.println("File Found : " + file.exists());
         return file.getPath();
     }
@@ -175,7 +169,7 @@ public class NeuralNetTrainingService {
     }
 
     /** Predict all the features (open, close, low, high prices and volume) of a stock one-day ahead */
-    public ResultSet predictAllCategories (MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, INDArray max, INDArray min, ResultSet resultSet) {
+    public void predictAllCategories (MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, INDArray max, INDArray min, ResultSet resultSet) {
 
         INDArray[] predicts = new INDArray[testData.size()];
         INDArray[] actuals = new INDArray[testData.size()];
@@ -196,7 +190,7 @@ public class NeuralNetTrainingService {
         }
 
         List<Result> resultList = new ArrayList<>();
-        for (int n = 0; n < 5; n++) {
+        for (int n = 0; n < 6; n++) {
 
             PriceCategory pricaCategoryForResult;
             switch (n) {
@@ -205,6 +199,7 @@ public class NeuralNetTrainingService {
                 case 2: pricaCategoryForResult = PriceCategory.LOW; break;
                 case 3: pricaCategoryForResult = PriceCategory.HIGH; break;
                 case 4: pricaCategoryForResult = PriceCategory.VOLUME; break;
+                case 5: pricaCategoryForResult = PriceCategory.DAILY_CHANGE_PERC; break;
                 default: throw new NoSuchElementException();
             }
 
@@ -218,14 +213,13 @@ public class NeuralNetTrainingService {
                         Double.valueOf(predicts[i].getDouble(n)),
                         Double.valueOf(actuals[i].getDouble(n)),
                         resultSet.getPeriod(),
-                        resultSet.getId()
+                        resultSet.getId(),
+                        -1          //-1 because this parameter is only used during forecasting, not for neural net training
                 );
                 resultList.add(resultService.saveResult(result));
             }
         }
-
         resultSet.setResultList(resultList);
-        return resultSet;
     }
 }
 
