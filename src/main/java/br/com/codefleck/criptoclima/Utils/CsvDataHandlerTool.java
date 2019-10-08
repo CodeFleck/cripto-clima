@@ -25,6 +25,7 @@ public class CsvDataHandlerTool {
         List<StockData> stockDataList = loadCsv(PATH);
 
         //do something
+        Collections.reverse(stockDataList);
         List<CustomStockData> stockDataListWithDailyChangePerc = transformStockDataInCustomStockData(stockDataList);
 
         //write new csv
@@ -80,7 +81,7 @@ public class CsvDataHandlerTool {
 
     @NotNull
     private static String getCSVFilePath() {
-        File file = new File("data/(changeME)BTCUSD_1h_01jan2015_14ago2019.csv");
+        File file = new File("data/ChangeMe)Kraken_BTCUSD_d.csv");
         System.out.println("File Found : " + file.exists());
 
         return file.getPath();
@@ -112,7 +113,7 @@ public class CsvDataHandlerTool {
         final String NEW_LINE_SEPARATOR = "\n";
         final String FILE_HEADER = "date,symbol,open,close,low, high, volume, dailyChangePercentage";
 
-        String csvFileForTrainingNeuralNets = "data/(ChangeMe)1hourFullDataSet(01Jan15-14Ago19).csv";
+        String csvFileForTrainingNeuralNets = "data/(ChangeMe)Kraken_BTCUSD_d_WithDailyChange.csv";
 
         FileWriter fileWriter = new FileWriter(csvFileForTrainingNeuralNets);
         try {

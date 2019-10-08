@@ -141,7 +141,7 @@ public class NeuralNetTrainingService {
 
     @NotNull
     private String getCSVContent() {
-        File file = new File("data/1hourFullDataSet(01Jan15-14Ago19).csv");
+        File file = new File("data/Kraken_BTCUSD_d_WithDailyChange.csv");
         System.out.println("File Found : " + file.exists());
         return file.getPath();
     }
