@@ -60,13 +60,11 @@
 
         if (dailyChange > 0 && dailyChange < 1) {
             imageToday = "images/icons/icon-3.svg";
-        } else if (dailyChange > 0 && dailyChange < 0.5) {
-            imageToday = "images/icons/icon-3.svg";
-        } else if (dailyChange < 0 && dailyChange > -0.5) {
-            imageToday = "images/icons/icon-6.svg";
-        } else if (dailyChange > 1) {
+        } else if (dailyChange >= 1) {
             imageToday = "images/icons/icon-2.svg";
-        } else if (dailyChange < 0 && dailyChange > -1) {
+        } else if (dailyChange <= 0 && dailyChange > -0.5) {
+            imageToday = "images/icons/icon-6.svg";
+        } else if (dailyChange <= 0 && dailyChange > -1) {
             imageToday = "images/icons/icon-9.svg";
         } else if (dailyChange < 1 && dailyChange > -2) {
             imageToday = "images/icons/icon-10.svg";

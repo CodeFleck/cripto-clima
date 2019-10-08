@@ -20,7 +20,7 @@ public class RSSParser {
             SyndEntry entry = (SyndEntry) o;
             parsedFeed += "<p>" + "<h4>" + "<br>" + entry.getTitle() + "</br>" + "</h4>" + "</p>"
                     + "<p>" + entry.getPublishedDate() + "</p>"
-                    + "<br>" + "<a href=" + entry.getLink() + ">" + "full article" + "</a>" + "</br>";
+                    + "<br>" + "<a href=" + entry.getLink() + ">" + "ler artigo completo" + "</a>" + "</br>";
         }
 
         return parsedFeed;
