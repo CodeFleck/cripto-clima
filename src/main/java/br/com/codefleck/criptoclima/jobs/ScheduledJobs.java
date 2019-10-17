@@ -49,7 +49,7 @@ public class ScheduledJobs {
     final int PREDICTION_CANDLE_LIST_SIZE = 3;
 
     @Async
-    @Scheduled(cron = "0 0/10 * * * ?",zone = "America/Sao_Paulo") //job executes every 10 min.
+    @Scheduled(cron = "0 0/1 * * * ?",zone = "America/Sao_Paulo") //job executes every 1 min.
     public void updateDailyForecastJob() {
         System.out.println("JOB -> executing updateDailyForecasetJob...");
 
