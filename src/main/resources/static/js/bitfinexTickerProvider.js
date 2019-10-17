@@ -57,7 +57,7 @@
         var dailyChange = parseFloat(formattedValue.replace(";", "."));
         var forecastIconToday = document.getElementById("forecastIconToday");
         var imageToday = forecastIconToday.getAttribute("src");
-
+debugger;
         if (dailyChange >= 0 && dailyChange < 1) {
             imageToday = "images/icons/icon-3.svg";
         } else if (dailyChange >= 1) {
@@ -66,11 +66,11 @@
             imageToday = "images/icons/icon-6.svg";
         } else if (dailyChange < 0.5 && dailyChange > -1) {
             imageToday = "images/icons/icon-9.svg";
-        } else if (dailyChange < 1 && dailyChange > -2) {
+        } else if (dailyChange < 1 && dailyChange >= -2) {
             imageToday = "images/icons/icon-10.svg";
         } else if (dailyChange < -2 && dailyChange > -7) {
             imageToday = "images/icons/icon-11.svg";
-        } else if (dailyChange < -7) {
+        } else if (dailyChange <= -7) {
             imageToday = "images/icons/icon-8.svg";
         }
         forecastIconToday.setAttribute("src", imageToday);
