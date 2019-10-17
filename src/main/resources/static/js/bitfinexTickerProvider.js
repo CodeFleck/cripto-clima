@@ -58,13 +58,13 @@
         var forecastIconToday = document.getElementById("forecastIconToday");
         var imageToday = forecastIconToday.getAttribute("src");
 
-        if (dailyChange > 0 && dailyChange < 1) {
+        if (dailyChange >= 0 && dailyChange < 1) {
             imageToday = "images/icons/icon-3.svg";
         } else if (dailyChange >= 1) {
             imageToday = "images/icons/icon-2.svg";
-        } else if (dailyChange <= 0 && dailyChange > -0.5) {
+        } else if (dailyChange < 0 && dailyChange >= -0.5) {
             imageToday = "images/icons/icon-6.svg";
-        } else if (dailyChange <= 0 && dailyChange > -1) {
+        } else if (dailyChange < 0.5 && dailyChange > -1) {
             imageToday = "images/icons/icon-9.svg";
         } else if (dailyChange < 1 && dailyChange > -2) {
             imageToday = "images/icons/icon-10.svg";
@@ -105,21 +105,21 @@
             weekDayImage = weekDayIconTagsArray[i].getAttribute("src");
             dailyChange = weekDayValuePercentageArray[i];
 
-            if (dailyChange > 0 && dailyChange < 1){
+            if (dailyChange > 0.5 && dailyChange < 1){
                 weekDayImage = "images/icons/icon-3.svg";
-            } else if ( dailyChange > 0 && dailyChange < 0.5 ) {
+            } else if ( dailyChange >= 0 && dailyChange < 0.5 ) {
                 weekDayImage = "images/icons/icon-3.svg";
-            } else if ( dailyChange < 0 && dailyChange > -0.5 ) {
+            } else if ( dailyChange < 0 && dailyChange >= -0.5 ) {
                 weekDayImage = "images/icons/icon-6.svg";
-            } else if ( dailyChange > 1 ) {
+            } else if ( dailyChange >= 1 ) {
                 weekDayImage = "images/icons/icon-2.svg";
-            } else if (dailyChange < 0 && dailyChange > -1){
+            } else if (dailyChange < 0.5 && dailyChange > -1){
                 weekDayImage = "images/icons/icon-9.svg";
-            } else if (dailyChange < 1 && dailyChange > -2){
+            } else if (dailyChange < -1 && dailyChange >= -2){
                 weekDayImage = "images/icons/icon-10.svg";
             } else if (dailyChange < -2 && dailyChange > -7){
                 weekDayImage = "images/icons/icon-11.svg";
-            } else if (dailyChange < -7){
+            } else if (dailyChange <= -7){
                 weekDayImage = "images/icons/icon-8.svg";
             }
             weekDayIconTagsArray[i].setAttribute("src", weekDayImage);
