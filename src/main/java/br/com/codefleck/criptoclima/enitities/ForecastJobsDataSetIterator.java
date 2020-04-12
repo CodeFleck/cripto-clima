@@ -12,12 +12,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
-import static java.util.Map.of;
 
 public class ForecastJobsDataSetIterator implements DataSetIterator {
     /** category and its index */
-    private final Map<PriceCategory, Integer> featureMapIndex = of(PriceCategory.OPEN, 0, PriceCategory.CLOSE, 1,
-            PriceCategory.LOW, 2, PriceCategory.HIGH, 3, PriceCategory.VOLUME, 4, PriceCategory.DAILY_CHANGE_PERC, 5);
+    private final Map<PriceCategory, Integer> featureMapIndex = new HashMap<>();
 
     private final int VECTOR_SIZE = 6; // number of features for a stock data
     private int miniBatchSize; // mini-batch size

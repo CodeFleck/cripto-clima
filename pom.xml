@@ -17,8 +17,21 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<dl4j.version>1.0.0-beta4</dl4j.version>
-		<sdk>/usr/share/openjfx</sdk>
+		<javafx.version>12</javafx.version>
+		<javafx.platform>\%linux\%</javafx.platform>
 	</properties>
+	<repositories>
+		<repository>
+			<id>spring-releases</id>
+			<url>https://repo.spring.io/libs-release</url>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>spring-releases</id>
+			<url>https://repo.spring.io/libs-release</url>
+		</pluginRepository>
+	</pluginRepositories>
 
 	<dependencies>
 		<dependency>
@@ -49,15 +62,15 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
+		<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.19</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>23.6-jre</version>
 		</dependency>
 		<dependency>
 			<groupId>com.opencsv</groupId>
@@ -113,14 +126,6 @@
 			<version>0.12</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx.base</artifactId>
-			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${sdk}/lib/javafx.base.jar</systemPath>
-		</dependency>
-
 <!--		rss news fetcher-->
 		<dependency>
 			<groupId>rome</groupId>
@@ -150,8 +155,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>10</source>
-					<target>10</target>
+					<source>1.8</source>
+					<target>1.8</target>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
@@ -170,10 +175,10 @@
 					</archive>
 				</configuration>
 			</plugin>
-<!--			<plugin>-->
-<!--				<groupId>org.springframework.boot</groupId>-->
-<!--				<artifactId>spring-boot-maven-plugin</artifactId>-->
-<!--			</plugin>-->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
 		</plugins>
 	</build>
 
