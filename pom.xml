@@ -17,6 +17,7 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<dl4j.version>1.0.0-beta4</dl4j.version>
+		<sdk>/usr/share/openjfx</sdk>
 	</properties>
 	<repositories>
 		<repository>
@@ -147,6 +148,7 @@
 			<artifactId>javafx.base</artifactId>
 			<version>11.0.0-SNAPSHOT</version>
 			<scope>system</scope>
+			<systemPath>${sdk}/javafx.base.jar</systemPath>
 		</dependency>
 
 	</dependencies>
