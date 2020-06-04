@@ -151,12 +151,12 @@
 <!--			<systemPath>${sdk}/javafx.base.jar</systemPath>-->
 <!--		</dependency>-->
 		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-controls -->
+		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-controls -->
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-controls</artifactId>
-			<version>11</version>
+			<version>15-ea+5</version>
 		</dependency>
-
 
 	</dependencies>
 
